@@ -1,0 +1,14 @@
+.sass-cache
+
+node_modules/
+# for prepping builds and demos for distribution
+dist/
+
+# exclude source
+src/
+
+# exclude dotfiles
+.babelrc
+.editorconfig
+webpack.config.*.js
+webpack.config.js

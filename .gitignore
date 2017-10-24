@@ -1,4 +1,5 @@
 .sass-cache
 
-dist/
 node_modules/
+# for prepping builds and demos for distribution
+dist/
