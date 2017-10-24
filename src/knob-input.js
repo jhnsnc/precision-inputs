@@ -1,8 +1,8 @@
-import { transformProp } from './utils';
+import { getTransformProperty } from './utils';
 
 // TODO: add input label for screenreaders
 
-export class KnobInput {
+export default class KnobInput {
   constructor(containerElement, options) {
     if (!options) {
       options = {};
@@ -39,7 +39,10 @@ export class KnobInput {
     this._visualElement.classList.add('control-knob__visual');
 
     // visual context
-    this._visualContext = { element: this._visualElement };
+    this._visualContext = {
+      element: this._visualElement,
+      transformProperty: getTransformProperty(),
+    };
     this.setupVisualContext.apply(this._visualContext);
     this.updateVisuals = this.updateVisuals.bind(this._visualContext);
 
@@ -82,7 +85,7 @@ export class KnobInput {
   }
 
   static rotationUpdateFunction(norm) {
-    this.element.style[transformProp] = `rotate(${this.maxRotation*norm-this.minRotation*(norm-1)}deg)`;
+    this.element.style[this.transformProperty] = `rotate(${this.maxRotation*norm-this.minRotation*(norm-1)}deg)`;
   }
 
   // handlers

@@ -1,7 +1,7 @@
 require('./demo.scss');
 
-import { KnobInput } from '../knob-input';
-import { transformProp, debounce } from '../utils';
+import KnobInput from '../knob-input';
+import { getTransformProperty, debounce } from '../utils';
 
 // Demo Setup - Knobs
 
@@ -13,7 +13,7 @@ var envelopeKnobs = envelopeKnobs.map((el, idx) => new KnobInput(el, {
     var ringStyle = getComputedStyle(this.element.querySelector('.indicator-ring-bg'));
     this.r = parseFloat(ringStyle.r) - (parseFloat(ringStyle.strokeWidth) / 2);
     this.indicatorDot = this.element.querySelector('.indicator-dot');
-    this.indicatorDot.style[`${transformProp}Origin`] = '20px 20px';
+    this.indicatorDot.style[`${this.transformProperty}Origin`] = '20px 20px';
   },
   updateVisuals: function(norm) {
     var theta = Math.PI*2*norm + 0.5*Math.PI;
@@ -21,7 +21,7 @@ var envelopeKnobs = envelopeKnobs.map((el, idx) => new KnobInput(el, {
     var endY = this.r*Math.sin(theta) + 20;
     // using 2 arcs rather than flags since one arc collapses if it gets near 360deg
     this.indicatorRing.setAttribute('d',`M20,20l0,${this.r}${norm> 0.5?`A${this.r},${this.r},0,0,1,20,${20-this.r}`:''}A-${this.r},${this.r},0,0,1,${endX},${endY}Z`);
-    this.indicatorDot.style[transformProp] = `rotate(${360*norm}deg)`;
+    this.indicatorDot.style[this.transformProperty] = `rotate(${360*norm}deg)`;
   },
   min: 0,
   max: 100,
@@ -48,6 +48,8 @@ var tensionKnobs = tensionKnobs.map((el, idx) => new KnobInput(el, {
 }));
 
 // Demo Setup - Envelope Visualization
+
+var transformProp = getTransformProperty();
 
 var container = document.querySelector('.envelope-visualizer');
 var enveloperVisualizer = {

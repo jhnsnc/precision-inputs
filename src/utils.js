@@ -27,4 +27,4 @@ export function debounce(func, wait, immediate) {
   };
 };
 
-export const transformProp = getTransformProperty();
+export const transformProp = getTransformProperty(); // TODO: remove

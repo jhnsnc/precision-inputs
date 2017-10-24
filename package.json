@@ -4,11 +4,13 @@
   "description": "Vanilla JS input component for knobs/dials. Highly customizable, portable, and accessible.",
   "author": "Chris Johnson",
   "license": "MIT",
-  "main": "index.js",
+  "main": "lib/knob-input.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --content-base public/",
-    "build": "webpack"
+    "start": "webpack-dev-server --content-base public/ --config webpack.config.demo.js",
+    "build-demo": "webpack --progress --config webpack.config.demo.js",
+    "build-lib": "webpack --progress --config webpack.config.lib.js",
+    "build": "npm build-lib"
   },
   "repository": {
     "type": "git",
@@ -29,6 +31,7 @@
     "node-sass": "^4.5.3",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.19.0",
+    "uglifyjs-webpack-plugin": "^1.0.0",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.3"
   }

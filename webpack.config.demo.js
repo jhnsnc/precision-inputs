@@ -21,7 +21,6 @@ const extractSass = new ExtractTextPlugin({
 
 module.exports = {
   entry: {
-    main: './src/knob-input.js',
     demo: './src/demo/demo.js',
   },
   output: {
