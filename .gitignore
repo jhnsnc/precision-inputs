@@ -9,6 +9,7 @@ node_modules/
 dist
 
 # built files
+/css
 /common
 /scripts
 /umd

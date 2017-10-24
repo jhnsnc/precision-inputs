@@ -6,6 +6,7 @@
   "license": "MIT",
   "main": "scripts/knob-input.js",
   "files": [
+    "css/**/*",
     "common/**/*",
     "scripts/**/*",
     "umd/**/*"
@@ -18,11 +19,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --content-base public/ --config webpack.config.demo.js",
     "build-demo": "webpack --progress --config webpack.config.demo.js",
-    "build-lib": "npm run build-lib-window && npm run build-lib-umd && npm run build-lib-common",
+    "clean-lib": "rm -rf css && rm -rf common && rm -rf umd && rm -rf window",
+    "build-lib": "npm run build-lib-common && npm run build-lib-umd && npm run build-lib-window",
+    "build-lib-common": "webpack --progress --config webpack.config.lib.js --env.target=common",
     "build-lib-window": "webpack --progress --config webpack.config.lib.js --env.target=window",
     "build-lib-umd":    "webpack --progress --config webpack.config.lib.js --env.target=umd",
-    "build-lib-common": "webpack --progress --config webpack.config.lib.js --env.target=common",
-    "build": "npm run build-lib"
+    "build": "npm run clean-lib && npm run build-lib"
   },
   "repository": {
     "type": "git",
