@@ -1,6 +1,6 @@
 {
   "name": "knob-input",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Vanilla JS input component for knobs/dials. Highly customizable, portable, and accessible.",
   "author": "Chris Johnson",
   "license": "MIT",
