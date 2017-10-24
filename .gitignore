@@ -1,5 +1,14 @@
-.sass-cache
-
+# node
 node_modules/
-# for prepping builds and demos for distribution
-dist/
+.npmrc
+
+# OSX
+.DS_Store
+
+# demo builds
+dist
+
+# built files
+/common
+/scripts
+/umd
