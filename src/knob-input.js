@@ -221,14 +221,14 @@ export default class KnobInput {
   }
 
   updateToInputValue() {
-    var normVal = this.normalizeValue(parseFloat(this._input.value));
-    this.updateVisuals(normVal);
+    var newVal = parseFloat(this._input.value);
+    this.updateVisuals(this.normalizeValue(newVal), newVal);
   }
 
   updateFromDrag(dragAmount, resistance) {
     var newVal = this.clampValue(this._prevValue - (dragAmount/resistance));
     this._input.value = newVal;
-    this.updateVisuals(this.normalizeValue(newVal));
+    this.updateVisuals(this.normalizeValue(newVal), newVal);
   }
 
   // utils
