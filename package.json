@@ -1,9 +1,22 @@
 {
   "name": "knob-input",
-  "version": "0.1.4",
-  "description": "Vanilla JS input component for knobs/dials. Highly customizable, portable, and accessible.",
+  "version": "0.1.5",
+  "description": "Vanilla JS input component for precision knobs/dial/slider inputs. Highly customizable, portable, and accessible.",
   "author": "Chris Johnson",
   "license": "MIT",
+  "keywords": [
+    "knob",
+    "dial",
+    "ui",
+    "component",
+    "components",
+    "javascript",
+    "js",
+    "html",
+    "css",
+    "sass",
+    "scss"
+  ],
   "main": "scripts/knob-input.js",
   "files": [
     "common/**/*",
@@ -23,7 +36,7 @@
     "build-lib": "npm run build-lib-common && npm run build-lib-umd && npm run build-lib-window",
     "build-lib-common": "webpack --progress --config webpack.config.lib.js --env.target=common",
     "build-lib-window": "webpack --progress --config webpack.config.lib.js --env.target=window",
-    "build-lib-umd":    "webpack --progress --config webpack.config.lib.js --env.target=umd",
+    "build-lib-umd": "webpack --progress --config webpack.config.lib.js --env.target=umd",
     "build": "npm run clean-lib && npm run build-lib"
   },
   "repository": {
