@@ -115,6 +115,7 @@ export default class FLStandardKnob extends KnobInput {
       indicatorDot.setAttribute('fill', '#4eccff');
     }
 
+    // combine dial
     dial.appendChild(dialSoftShadow);
     dial.appendChild(dialHardShadow);
     dial.appendChild(dialBase);
@@ -124,7 +125,7 @@ export default class FLStandardKnob extends KnobInput {
       dial.appendChild(indicatorDot);
     }
 
-    // add all children
+    // combine all
     svg.appendChild(focusIndicator);
     svg.appendChild(indicatorRingBg);
     svg.appendChild(indicatorRing);
@@ -154,10 +155,10 @@ export default class FLStandardKnob extends KnobInput {
       switch (ringType) {
         case 'positive':
         default:
-          this.indicatorRing.setAttribute('d',`M20,20l0,${this.r}${norm> 0.5?`A${this.r},${this.r},0,0,1,20,${20-this.r}`:''}A-${this.r},${this.r},0,0,1,${endX},${endY}Z`);
+          this.indicatorRing.setAttribute('d',`M20,20l0,${this.r}${norm>0.5?`A${this.r},${this.r},0,0,1,20,${20-this.r}`:''}A-${this.r},${this.r},0,0,1,${endX},${endY}Z`);
           break;
         case 'negative':
-          // TODO: implement
+          this.indicatorRing.setAttribute('d',`M20,20l0,${this.r}${norm<0.5?`A-${this.r},${this.r},0,0,0,20,${20-this.r}`:''}A${this.r},${this.r},0,0,0,${endX},${endY}Z`);
           break;
         case 'split':
           this.indicatorRing.setAttribute('d',`M20,20l0,-${this.r}A${this.r},${this.r},0,0,${norm<0.5?0:1},${endX},${endY}Z`);
