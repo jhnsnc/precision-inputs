@@ -18,9 +18,10 @@ export default class FLStandardKnob extends KnobInput {
     // options
     const showIndicatorDot = typeof options.indicatorDot !== 'undefined' ? options.indicatorDot : true;
     const indicatorRingType = typeof options.indicatorRingType !== 'undefined' ? options.indicatorRingType : 'positive';
+    const color = typeof options.color !== 'undefined' ? options.color : '#4eccff';
 
     // construct visual element and attach to DOM
-    const visualElement = FLStandardKnob._constructVisualElement(showIndicatorDot);
+    const visualElement = FLStandardKnob._constructVisualElement(showIndicatorDot, color);
 
     // create visual update functions
     options.visualContext = FLStandardKnob._getVisualSetupFunction(showIndicatorDot);
@@ -33,7 +34,7 @@ export default class FLStandardKnob extends KnobInput {
     super(containerElement, visualElement, options);
   }
 
-  static _constructVisualElement(showIndicatorDot) {
+  static _constructVisualElement(showIndicatorDot, color) {
     // TODO: update class names (here and in SCSS)
     const svg = document.createElementNS(svgNS, 'svg');
     svg.classList.add('knob-svg');
@@ -44,7 +45,7 @@ export default class FLStandardKnob extends KnobInput {
     focusIndicator.setAttribute('cx', 20);
     focusIndicator.setAttribute('cy', 20);
     focusIndicator.setAttribute('r', 18);
-    focusIndicator.setAttribute('fill', '#4eccff');
+    focusIndicator.setAttribute('fill', color);
     focusIndicator.setAttribute('filter', 'url(#glow)');
 
     const indicatorRingBg = document.createElementNS(svgNS, 'circle');
@@ -58,7 +59,7 @@ export default class FLStandardKnob extends KnobInput {
     const indicatorRing = document.createElementNS(svgNS, 'path');
     indicatorRing.classList.add('indicator-ring');
     indicatorRing.setAttribute('d', 'M20,20Z');
-    indicatorRing.setAttribute('fill', '#4eccff');
+    indicatorRing.setAttribute('fill', color);
 
     // dial group
     const dial = document.createElementNS(svgNS, 'g');
@@ -112,7 +113,7 @@ export default class FLStandardKnob extends KnobInput {
       indicatorDot.setAttribute('cx', 20);
       indicatorDot.setAttribute('cy', 30);
       indicatorDot.setAttribute('r', 1.5);
-      indicatorDot.setAttribute('fill', '#4eccff');
+      indicatorDot.setAttribute('fill', color);
     }
 
     // combine dial
