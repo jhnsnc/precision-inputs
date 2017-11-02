@@ -1,13 +1,16 @@
 require('./demo.scss');
 
 import KnobInput from '../knob-input';
+import FLStandardKnob from '../fl-standard-knob';
 import { getTransformProperty, debounce } from '../utils';
+
+var visualizerA = document.querySelector('.fl-envelope--a');
 
 // Demo Setup - Knobs
 
 var envelopeKnobStartPositions = [0, 40, 75, 85, 20, 55];
-var envelopeKnobs = [...document.querySelectorAll('.fl-studio-asdr__knob.envelope-knob')];
-var envelopeKnobs = envelopeKnobs.map((el, idx) => new KnobInput(el, {
+var envelopeKnobs = [...visualizerA.querySelectorAll('.fl-envelope__knob.envelope-knob')];
+var envelopeKnobs = envelopeKnobs.map((el, idx) => new KnobInput(el, el.querySelector('.knob-svg'), {
   visualContext: function() {
     this.indicatorRing = this.element.querySelector('.indicator-ring');
     var ringStyle = getComputedStyle(this.element.querySelector('.indicator-ring-bg'));
@@ -29,8 +32,8 @@ var envelopeKnobs = envelopeKnobs.map((el, idx) => new KnobInput(el, {
 }));
 
 var tensionKnobStartPositions = [0, 0, -80];
-var tensionKnobs = [...document.querySelectorAll('.fl-studio-asdr__knob.tension-knob')];
-var tensionKnobs = tensionKnobs.map((el, idx) => new KnobInput(el, {
+var tensionKnobs = [...visualizerA.querySelectorAll('.fl-envelope__knob.tension-knob')];
+var tensionKnobs = tensionKnobs.map((el, idx) => new KnobInput(el, el.querySelector('.knob-svg'), {
   visualContext: function() {
     this.indicatorRing = this.element.querySelector('.indicator-ring');
     var ringStyle = getComputedStyle(this.element.querySelector('.indicator-ring-bg'));
@@ -49,10 +52,8 @@ var tensionKnobs = tensionKnobs.map((el, idx) => new KnobInput(el, {
 
 // Demo Setup - Envelope Visualization
 
-var transformProp = getTransformProperty();
-
-var container = document.querySelector('.envelope-visualizer');
-var enveloperVisualizer = {
+var container = visualizerA.querySelector('.envelope-visualizer');
+var envelopeVisualizer = {
   container: container,
   shape: container.querySelector('.envelope-shape'),
   delay: container.querySelector('.delay'),
@@ -62,55 +63,94 @@ var enveloperVisualizer = {
   release: container.querySelector('.release'),
 };
 
-var updateVisualization = debounce(function(evt) {
-  var maxPtSeparation = 75;
-  var ptDelay = (maxPtSeparation * envelopeKnobs[0].value / 100);
-  var ptAttack = ptDelay + (maxPtSeparation * envelopeKnobs[1].value / 100);
-  var ptHold = ptAttack + (maxPtSeparation * envelopeKnobs[2].value / 100);
-  var ptDecay = ptHold + (maxPtSeparation * envelopeKnobs[3].value / 100) * (100 - envelopeKnobs[4].value) / 100;
-  var ptSustain = 100 - envelopeKnobs[4].value; // y value
-  var ptRelease = ptDecay + (maxPtSeparation * envelopeKnobs[5].value / 100);
-  // TODO: better tension visualization
-  var tnAttack = (ptAttack - ptDelay) * tensionKnobs[0].value / 100;
-  var tnDecay = (ptDecay - ptHold) * tensionKnobs[1].value / 100;
-  var tnRelease = (ptRelease - ptDecay) * tensionKnobs[2].value / 100;
-  enveloperVisualizer.shape.setAttribute('d',
-    `M${ptDelay},100`+
-    `C${tnAttack<0?ptDelay-tnAttack:ptDelay},100,${tnAttack>0?ptAttack-tnAttack:ptAttack},0,${ptAttack},0`+
-    `L${ptHold},0`+
-    `C${tnDecay>0?ptHold+tnDecay:ptHold},0,${tnDecay<0?ptDecay+tnDecay:ptDecay},${ptSustain},${ptDecay},${ptSustain}`+
-    `C${tnRelease>0?ptDecay+tnRelease:ptDecay},${ptSustain},${tnRelease<0?ptRelease+tnRelease:ptRelease},100,${ptRelease},100`
-  );
-  enveloperVisualizer.delay.setAttribute('cx', ptDelay);
-  enveloperVisualizer.attack.setAttribute('cx', ptAttack);
-  enveloperVisualizer.hold.setAttribute('cx', ptHold);
-  enveloperVisualizer.decay.setAttribute('cx', ptDecay);
-  enveloperVisualizer.decay.setAttribute('cy', ptSustain);
-  enveloperVisualizer.release.setAttribute('cx', ptRelease);
-}, 10);
+function setupEnvelopeVisualization(envVis, envelopeKnobs, tensionKnobs) {
+  var updateVisualization = debounce(function(evt) {
+    var maxPtSeparation = 75;
+    var ptDelay = (maxPtSeparation * envelopeKnobs[0].value / 100);
+    var ptAttack = ptDelay + (maxPtSeparation * envelopeKnobs[1].value / 100);
+    var ptHold = ptAttack + (maxPtSeparation * envelopeKnobs[2].value / 100);
+    var ptDecay = ptHold + (maxPtSeparation * envelopeKnobs[3].value / 100) * (100 - envelopeKnobs[4].value) / 100;
+    var ptSustain = 100 - envelopeKnobs[4].value; // y value
+    var ptRelease = ptDecay + (maxPtSeparation * envelopeKnobs[5].value / 100);
+    // TODO: better tension visualization
+    var tnAttack = (ptAttack - ptDelay) * tensionKnobs[0].value / 100;
+    var tnDecay = (ptDecay - ptHold) * tensionKnobs[1].value / 100;
+    var tnRelease = (ptRelease - ptDecay) * tensionKnobs[2].value / 100;
+    envVis.shape.setAttribute('d',
+      `M${ptDelay},100`+
+      `C${tnAttack<0?ptDelay-tnAttack:ptDelay},100,${tnAttack>0?ptAttack-tnAttack:ptAttack},0,${ptAttack},0`+
+      `L${ptHold},0`+
+      `C${tnDecay>0?ptHold+tnDecay:ptHold},0,${tnDecay<0?ptDecay+tnDecay:ptDecay},${ptSustain},${ptDecay},${ptSustain}`+
+      `C${tnRelease>0?ptDecay+tnRelease:ptDecay},${ptSustain},${tnRelease<0?ptRelease+tnRelease:ptRelease},100,${ptRelease},100`
+    );
+    envVis.delay.setAttribute('cx', ptDelay);
+    envVis.attack.setAttribute('cx', ptAttack);
+    envVis.hold.setAttribute('cx', ptHold);
+    envVis.decay.setAttribute('cx', ptDecay);
+    envVis.decay.setAttribute('cy', ptSustain);
+    envVis.release.setAttribute('cx', ptRelease);
+  }, 10);
 
-envelopeKnobs.concat(tensionKnobs)
-  .forEach(knob => { knob.addEventListener('change', updateVisualization); });
-updateVisualization();
+  envelopeKnobs.concat(tensionKnobs)
+    .forEach(knob => { knob.addEventListener('change', updateVisualization); });
+  updateVisualization();
+}
+setupEnvelopeVisualization(envelopeVisualizer, envelopeKnobs, tensionKnobs);
 
-var panelElement = document.querySelector('.fl-studio-asdr');
-var panel = {
-  element: panelElement,
-  originalTransform: getComputedStyle(panelElement)[transformProp],
-  width: panelElement.getBoundingClientRect().width,
-  height: panelElement.getBoundingClientRect().height,
+// Panel - Resizing
+
+// var transformProp = getTransformProperty();
+//
+// var panelElement = document.querySelector('.fl-envelope');
+// var panel = {
+//   element: panelElement,
+//   originalTransform: getComputedStyle(panelElement)[transformProp],
+//   width: panelElement.getBoundingClientRect().width,
+//   height: panelElement.getBoundingClientRect().height,
+// };
+// var resizePanel = () => {
+//   var pw = (window.innerWidth - 40) / panel.width;
+//   var ph = (window.innerHeight - 40) / panel.height;
+//   var size = Math.min(pw, ph);
+//   if (size > 1.4) {
+//     size -= 0.4;
+//   } else if (size > 1) {
+//     size = Math.min(size, 1);
+//   }
+//   panel.element.style[transformProp] = `${panel.originalTransform} scale(${size})`;
+// };
+// window.addEventListener('resize', resizePanel);
+// resizePanel();
+
+var visualizerB = document.querySelector('.fl-envelope--b');
+
+var envelopeKnobStartPositions = [0, 40, 75, 85, 20, 55];
+var flEnvelopeKnobs = [...visualizerB.querySelectorAll('.fl-demo-knob.envelope-knob')];
+var flEnvelopeKnobs = flEnvelopeKnobs.map((el, idx) => new FLStandardKnob(el, {
+  indicatorDot: true,
+  min: 0,
+  max: 100,
+  initial: envelopeKnobStartPositions[idx],
+}));
+
+var tensionKnobStartPositions = [0, 0, -80];
+var flTensionKnobs = [...visualizerB.querySelectorAll('.fl-demo-knob.tension-knob')];
+var flTensionKnobs = flTensionKnobs.map((el, idx) => new FLStandardKnob(el, {
+  indicatorDot: false,
+  indicatorRingType: 'split',
+  min: -100,
+  max: 100,
+  initial: tensionKnobStartPositions[idx],
+}));
+
+var flVisContainer = visualizerB.querySelector('.envelope-visualizer');
+var flEnvelopeVisualizer = {
+  container: flVisContainer,
+  shape: flVisContainer.querySelector('.envelope-shape'),
+  delay: flVisContainer.querySelector('.delay'),
+  attack: flVisContainer.querySelector('.attack'),
+  hold: flVisContainer.querySelector('.hold'),
+  decay: flVisContainer.querySelector('.decay'),
+  release: flVisContainer.querySelector('.release'),
 };
-var resizePanel = () => {
-  var pw = (window.innerWidth - 40) / panel.width;
-  var ph = (window.innerHeight - 40) / panel.height;
-  var size = Math.min(pw, ph);
-  if (size > 1.4) {
-    size -= 0.4;
-  } else if (size > 1) {
-    size = Math.min(size, 1);
-  }
-  panel.element.style[transformProp] = `${panel.originalTransform} scale(${size})`;
-};
-window.addEventListener('resize', resizePanel);
-resizePanel();
-
+setupEnvelopeVisualization(flEnvelopeVisualizer, flEnvelopeKnobs, flTensionKnobs);
