@@ -32,7 +32,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --content-base public/ --config webpack.config.demo.js",
     "build-demo": "webpack --progress --config webpack.config.demo.js",
-    "clean-lib": "rm -rf css && rm -rf common && rm -rf umd && rm -rf window",
+    "clean-lib": "rm -rf css && rm -rf common && rm -rf umd && rm -rf scripts",
     "build-lib": "npm run build-lib-common && npm run build-lib-umd && npm run build-lib-window",
     "build-lib-common": "webpack --progress --config webpack.config.lib.js --env.target=common",
     "build-lib-window": "webpack --progress --config webpack.config.lib.js --env.target=window",
