@@ -41,14 +41,13 @@ export default class FLStandardKnob extends KnobInput {
   }
 
   static _constructVisualElement(showIndicatorDot, color) {
-    // TODO: update class names (here and in SCSS)
     const svg = document.createElementNS(svgNS, 'svg');
-    svg.classList.add('knob-svg');
+    svg.classList.add('fl-standard-knob__svg');
     svg.setAttribute('viewBox', '0 0 40 40');
 
     defineBlurFilter('grad__fl-standard-knob__focus-indicator-glow', 2);
     const focusIndicator = document.createElementNS(svgNS, 'circle');
-    focusIndicator.classList.add('focus-indicator');
+    focusIndicator.classList.add('fl-standard-knob__focus-indicator');
     focusIndicator.setAttribute('cx', 20);
     focusIndicator.setAttribute('cy', 20);
     focusIndicator.setAttribute('r', 18);
@@ -56,7 +55,7 @@ export default class FLStandardKnob extends KnobInput {
     focusIndicator.setAttribute('filter', 'url(#grad__fl-standard-knob__focus-indicator-glow)');
 
     const indicatorRingBg = document.createElementNS(svgNS, 'circle');
-    indicatorRingBg.classList.add('indicator-ring-bg');
+    indicatorRingBg.classList.add('fl-standard-knob__indicator-ring-bg');
     indicatorRingBg.setAttribute('cx', 20);
     indicatorRingBg.setAttribute('cy', 20);
     indicatorRingBg.setAttribute('r', 18);
@@ -64,27 +63,27 @@ export default class FLStandardKnob extends KnobInput {
     indicatorRingBg.setAttribute('stroke', '#23292d');
 
     const indicatorRing = document.createElementNS(svgNS, 'path');
-    indicatorRing.classList.add('indicator-ring');
+    indicatorRing.classList.add('fl-standard-knob__indicator-ring');
     indicatorRing.setAttribute('d', 'M20,20Z');
     indicatorRing.setAttribute('fill', color);
 
     // dial group
     const dial = document.createElementNS(svgNS, 'g');
-    dial.classList.add('dial');
+    dial.classList.add('fl-standard-knob__dial');
 
     defineSvgRadialGradient('grad__fl-standard-knob__soft-shadow', {cx: 0.5, cy: 0.5, r: 0.5}, {
       '85%':  { color: '#242a2e', opacity: 0.4 },
       '100%': { color: '#242a2e', opacity: 0 },
     });
     const dialSoftShadow = document.createElementNS(svgNS, 'circle');
-    dialSoftShadow.classList.add('dial-soft-shadow');
+    dialSoftShadow.classList.add('fl-standard-knob__dial-soft-shadow');
     dialSoftShadow.setAttribute('cx', 20);
     dialSoftShadow.setAttribute('cy', 20);
     dialSoftShadow.setAttribute('r', 16);
     dialSoftShadow.setAttribute('fill', 'url(#grad__fl-standard-knob__soft-shadow)');
 
     const dialHardShadow = document.createElementNS(svgNS, 'ellipse');
-    dialHardShadow.classList.add('dial-hard-shadow');
+    dialHardShadow.classList.add('fl-standard-knob__dial-hard-shadow');
     dialHardShadow.setAttribute('cx', 20);
     dialHardShadow.setAttribute('cy', 22);
     dialHardShadow.setAttribute('rx', 14);
@@ -97,7 +96,7 @@ export default class FLStandardKnob extends KnobInput {
       '100%': '#2b3238',
     });
     const dialBase = document.createElementNS(svgNS, 'circle');
-    dialBase.classList.add('dial-base');
+    dialBase.classList.add('fl-standard-knob__dial-base');
     dialBase.setAttribute('cx', 20);
     dialBase.setAttribute('cy', 20);
     dialBase.setAttribute('r', 14);
@@ -112,7 +111,7 @@ export default class FLStandardKnob extends KnobInput {
       '100%': { color: '#70777d', opacity: 0.3 },
     });
     const dialhighlightStroke = document.createElementNS(svgNS, 'circle');
-    dialhighlightStroke.classList.add('dial-highlight-stroke');
+    dialhighlightStroke.classList.add('fl-standard-knob__dial-highlight-stroke');
     dialhighlightStroke.setAttribute('cx', 20);
     dialhighlightStroke.setAttribute('cy', 20);
     dialhighlightStroke.setAttribute('r', 13);
@@ -121,7 +120,7 @@ export default class FLStandardKnob extends KnobInput {
     dialhighlightStroke.setAttribute('stroke-width', 1.5);
 
     const dialHighlight = document.createElementNS(svgNS, 'circle');
-    dialHighlight.classList.add('dial-highlight');
+    dialHighlight.classList.add('fl-standard-knob__dial-highlight');
     dialHighlight.setAttribute('cx', 20);
     dialHighlight.setAttribute('cy', 20);
     dialHighlight.setAttribute('r', 14);
@@ -130,7 +129,7 @@ export default class FLStandardKnob extends KnobInput {
     let indicatorDot;
     if (showIndicatorDot) {
       indicatorDot = document.createElementNS(svgNS, 'circle');
-      indicatorDot.classList.add('indicator-dot');
+      indicatorDot.classList.add('fl-standard-knob__indicator-dot');
       indicatorDot.setAttribute('cx', 20);
       indicatorDot.setAttribute('cy', 30);
       indicatorDot.setAttribute('r', 1.5);
@@ -158,11 +157,11 @@ export default class FLStandardKnob extends KnobInput {
 
   static _getVisualSetupFunction(showIndicatorDot) {
     return function() {
-      this.indicatorRing = this.element.querySelector('.indicator-ring');
-      var ringStyle = getComputedStyle(this.element.querySelector('.indicator-ring-bg'));
+      this.indicatorRing = this.element.querySelector('.fl-standard-knob__indicator-ring');
+      var ringStyle = getComputedStyle(this.element.querySelector('.fl-standard-knob__indicator-ring-bg'));
       this.r = parseFloat(ringStyle.r) - (parseFloat(ringStyle.strokeWidth) / 2);
       if (showIndicatorDot) {
-        this.indicatorDot = this.element.querySelector('.indicator-dot');
+        this.indicatorDot = this.element.querySelector('.fl-standard-knob__indicator-dot');
         this.indicatorDot.style[`${this.transformProperty}Origin`] = '20px 20px';
       }
     };
