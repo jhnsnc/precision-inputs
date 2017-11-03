@@ -1,6 +1,11 @@
 import './scss/fl-standard-knob.scss';
 
-import { svgNS } from './utils';
+import {
+  svgNS,
+  defineSvgLinearGradient,
+  defineSvgRadialGradient,
+  defineBlurFilter,
+} from './utils';
 
 import KnobInput from './knob-input';
 
@@ -40,13 +45,14 @@ export default class FLStandardKnob extends KnobInput {
     svg.classList.add('knob-svg');
     svg.setAttribute('viewBox', '0 0 40 40');
 
+    defineBlurFilter('grad__fl-standard-knob__focus-indicator-glow', 2);
     const focusIndicator = document.createElementNS(svgNS, 'circle');
     focusIndicator.classList.add('focus-indicator');
     focusIndicator.setAttribute('cx', 20);
     focusIndicator.setAttribute('cy', 20);
     focusIndicator.setAttribute('r', 18);
     focusIndicator.setAttribute('fill', color);
-    focusIndicator.setAttribute('filter', 'url(#glow)');
+    focusIndicator.setAttribute('filter', 'url(#grad__fl-standard-knob__focus-indicator-glow)');
 
     const indicatorRingBg = document.createElementNS(svgNS, 'circle');
     indicatorRingBg.classList.add('indicator-ring-bg');
@@ -65,12 +71,16 @@ export default class FLStandardKnob extends KnobInput {
     const dial = document.createElementNS(svgNS, 'g');
     dial.classList.add('dial');
 
+    defineSvgRadialGradient('grad__fl-standard-knob__soft-shadow', {cx: 0.5, cy: 0.5, r: 0.5}, {
+      '85%':  { color: '#242a2e', opacity: 0.4 },
+      '100%': { color: '#242a2e', opacity: 0 },
+    });
     const dialSoftShadow = document.createElementNS(svgNS, 'circle');
     dialSoftShadow.classList.add('dial-soft-shadow');
     dialSoftShadow.setAttribute('cx', 20);
     dialSoftShadow.setAttribute('cy', 20);
     dialSoftShadow.setAttribute('r', 16);
-    dialSoftShadow.setAttribute('fill', 'url(#grad-dial-soft-shadow)');
+    dialSoftShadow.setAttribute('fill', 'url(#grad__fl-standard-knob__soft-shadow)');
 
     const dialHardShadow = document.createElementNS(svgNS, 'ellipse');
     dialHardShadow.classList.add('dial-hard-shadow');
@@ -81,22 +91,32 @@ export default class FLStandardKnob extends KnobInput {
     dialHardShadow.setAttribute('fill', '#242a2e');
     dialHardShadow.setAttribute('opacity', 0.15);
 
+    defineSvgLinearGradient('grad__fl-standard-knob__dial-base', {x1:0, y1:0, x2:0, y2:1}, {
+      '0%': '#52595f',
+      '100%': '#2b3238',
+    });
     const dialBase = document.createElementNS(svgNS, 'circle');
     dialBase.classList.add('dial-base');
     dialBase.setAttribute('cx', 20);
     dialBase.setAttribute('cy', 20);
     dialBase.setAttribute('r', 14);
-    dialBase.setAttribute('fill', 'url(#grad-dial-base)');
+    dialBase.setAttribute('fill', 'url(#grad__fl-standard-knob__dial-base)');
     dialBase.setAttribute('stroke', '#242a2e');
     dialBase.setAttribute('stroke-width', 1.5);
 
+    defineSvgLinearGradient('grad__fl-standard-knob__dial-highlight', {x1:0, y1:0, x2:0, y2:1}, {
+      '0%':   { color: '#70777d', opacity: 1 },
+      '40%':  { color: '#70777d', opacity: 0 },
+      '55%':  { color: '#70777d', opacity: 0 },
+      '100%': { color: '#70777d', opacity: 0.3 },
+    });
     const dialhighlightStroke = document.createElementNS(svgNS, 'circle');
     dialhighlightStroke.classList.add('dial-highlight-stroke');
     dialhighlightStroke.setAttribute('cx', 20);
     dialhighlightStroke.setAttribute('cy', 20);
     dialhighlightStroke.setAttribute('r', 13);
     dialhighlightStroke.setAttribute('fill', 'transparent');
-    dialhighlightStroke.setAttribute('stroke', 'url(#grad-dial-highlight)');
+    dialhighlightStroke.setAttribute('stroke', 'url(#grad__fl-standard-knob__dial-highlight)');
     dialhighlightStroke.setAttribute('stroke-width', 1.5);
 
     const dialHighlight = document.createElementNS(svgNS, 'circle');
