@@ -1,6 +1,6 @@
 import './scss/knob-input.scss';
 
-import { getTransformProperty } from './utils';
+import { getTransformProperty } from './utils/ui';
 
 // TODO: add input label for screenreaders
 

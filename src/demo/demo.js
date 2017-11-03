@@ -2,7 +2,7 @@ require('./demo.scss');
 
 import KnobInput from '../knob-input';
 import FLStandardKnob from '../fl-standard-knob';
-import { getTransformProperty, debounce } from '../utils';
+import { getTransformProperty, debounce } from '../utils/ui';
 
 var visualizerA = document.querySelector('.fl-envelope--a');
 
@@ -127,7 +127,6 @@ var visualizerB = document.querySelector('.fl-envelope--b');
 var envelopeKnobStartPositions = [0, 40, 75, 85, 20, 55];
 var flEnvelopeKnobs = [...visualizerB.querySelectorAll('.fl-demo-knob.envelope-knob')];
 var flEnvelopeKnobs = flEnvelopeKnobs.map((el, idx) => new FLStandardKnob(el, {
-  indicatorDot: true,
   min: 0,
   max: 100,
   initial: envelopeKnobStartPositions[idx],

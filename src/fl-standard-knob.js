@@ -5,8 +5,9 @@ import {
   defineSvgLinearGradient,
   defineSvgRadialGradient,
   defineBlurFilter,
-} from './utils';
+} from './utils/svg';
 
+// TODO: update build to handle these components
 import KnobInput from './knob-input';
 
 // options:
