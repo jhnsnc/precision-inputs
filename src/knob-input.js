@@ -168,6 +168,7 @@ export default class KnobInput {
 
   handleMouseWheel(evt) {
     // console.log('mouse wheel');
+    evt.preventDefault();
     this._input.focus();
     this.clearDrag();
     this._prevValue = parseFloat(this._input.value);
