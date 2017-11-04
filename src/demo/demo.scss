@@ -11,6 +11,7 @@ html, body {
 }
 body {
   padding: 1px;
+  margin: 0;
   background: radial-gradient(#1a1d22, #121318);
 }
 .defs {
@@ -18,21 +19,6 @@ body {
   width: 0;
   height: 0;
   opacity: 0;
-}
-
-// Demo Wrapper
-
-.demo-wrapper {
-  display: flex;
-  justify-content: center;
-  .fl-envelope {
-    flex: 0 0 auto;
-    position: relative;
-    left: auto;
-    top: auto;
-    margin: 50px;
-    transform: none;
-  }
 }
 
 // FL studio knobs - demo styles
