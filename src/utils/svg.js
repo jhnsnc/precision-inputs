@@ -2,7 +2,7 @@ export const svgNS = 'http://www.w3.org/2000/svg';
 
 function getSvgDefsElement() {
   // return if found
-  const defsElement = document.getElementById('knob-input-svg-defs');
+  const defsElement = document.getElementById('precision-inputs-svg-defs');
   if (defsElement) {
     return defsElement;
   }
@@ -10,7 +10,7 @@ function getSvgDefsElement() {
   // otherwise create it
   const svg = document.createElementNS(svgNS, 'svg');
   const defs = document.createElementNS(svgNS, 'defs');
-  defs.id = 'knob-input-svg-defs';
+  defs.id = 'precision-inputs-svg-defs';
   svg.appendChild(defs);
   document.body.appendChild(svg);
 
