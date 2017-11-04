@@ -1,5 +1,15 @@
 {
-    "presets":[
-        "es2017", "react"
+  "presets":[
+    [
+      "@babel/env",
+      {
+        "targets": {
+          "browsers": ["last 2 versions"]
+        }
+      }
     ]
+  ],
+  "plugins": [
+    "transform-object-rest-spread"
+  ]
 }
