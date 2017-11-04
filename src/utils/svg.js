@@ -17,81 +17,51 @@ function getSvgDefsElement() {
   return defs;
 }
 
-function makeColorStops(colorStops = {}) {
-  const results = [];
-  let stopEl;
-  for (let offset in colorStops) {
+export function defineSvgGradient(id, type, attributes = {}, colorStops = {}) {
+  // exit early if gradient already exists
+  if (document.getElementById(id)) { return false; }
+
+  // error checking
+  if (type !== 'linear' && type !== 'radial') {
+    throw new Error(`Unknown SVG Gradient type: ${type}`);
+  }
+
+  // create element, set attributes
+  const gradientElement = document.createElementNS(svgNS, type === 'linear' ? 'linearGradient' : 'radialGradient');
+  gradientElement.id = id;
+  for (let attr in attributes)
+    if (attributes.hasOwnProperty(attr))
+      gradientElement.setAttribute(attr, attributes[attr]);
+
+  // create color stops
+  let stopElement;
+  for (let offset in colorStops)
     if  (colorStops.hasOwnProperty(offset)) {
-      stopEl = document.createElementNS(svgNS, 'stop');
+      stopElement = document.createElementNS(svgNS, 'stop');
       // set offset
       if (!isNaN(offset)) { //number
-        stopEl.setAttribute('offset', offset + '%');
+        stopElement.setAttribute('offset', offset + '%');
       } else if (offset[offset.length - 1] === '%') { // percent
-        stopEl.setAttribute('offset', offset);
+        stopElement.setAttribute('offset', offset);
       } else {
         continue;
       }
       // set color/opacity
       if (typeof colorStops[offset] === 'string') {
-        // color string
-        stopEl.setAttribute('stop-color', colorStops[offset]);
+        // simple string (color only)
+        stopElement.setAttribute('stop-color', colorStops[offset]);
       } else {
-        // color stop object
+        // object
         if (typeof colorStops[offset].color === 'string')
-          stopEl.setAttribute('stop-color', colorStops[offset].color);
+          stopElement.setAttribute('stop-color', colorStops[offset].color);
         if (typeof colorStops[offset].opacity !== 'undefined')
-          stopEl.setAttribute('stop-opacity', colorStops[offset].opacity);
+          stopElement.setAttribute('stop-opacity', colorStops[offset].opacity);
       }
-      results.push(stopEl);
+      gradientElement.appendChild(stopElement);
     }
-  }
-  return results;
-}
-
-export function defineSvgLinearGradient(id, sizing = {}, colorStops = {}) {
-  // exit early if gradient already exists
-  if (document.getElementById(id)) { return false; }
-
-  // create element, set sizing
-  const linGrad = document.createElementNS(svgNS, 'linearGradient');
-  linGrad.id = id;
-  if (typeof sizing.x1 !== 'undefined')
-    linGrad.setAttribute('x1', sizing.x1);
-  if (typeof sizing.y1 !== 'undefined')
-    linGrad.setAttribute('y1', sizing.y1);
-  if (typeof sizing.x2 !== 'undefined')
-    linGrad.setAttribute('x2', sizing.x2);
-  if (typeof sizing.y2 !== 'undefined')
-    linGrad.setAttribute('y2', sizing.y2);
-
-  // create color stops
-  makeColorStops(colorStops).forEach(stop => linGrad.appendChild(stop));
 
   // add to DOM
-  const defs = getSvgDefsElement();
-  defs.appendChild(linGrad);
-};
-
-export function defineSvgRadialGradient(id, sizing = {}, colorStops = {}) {
-  // exit early if gradient already exists
-  if (document.getElementById(id)) { return false; }
-
-  // create element, set sizing
-  const radGrad = document.createElementNS(svgNS, 'radialGradient');
-  radGrad.id = id;
-  if (typeof sizing.cx !== 'undefined')
-    radGrad.setAttribute('cx', sizing.cx);
-  if (typeof sizing.cy !== 'undefined')
-    radGrad.setAttribute('cy', sizing.cy);
-  if (typeof sizing.r !== 'undefined')
-    radGrad.setAttribute('r', sizing.r);
-
-  // create color stops
-  makeColorStops(colorStops).forEach(stop => radGrad.appendChild(stop));
-
-  // add to DOM
-  const defs = getSvgDefsElement();
-  defs.appendChild(radGrad);
+  getSvgDefsElement().appendChild(gradientElement);
 };
 
 export function defineBlurFilter(id, blurAmount, compositeMethod = 'none') {
@@ -121,6 +91,5 @@ export function defineBlurFilter(id, blurAmount, compositeMethod = 'none') {
   }
 
   // add to DOM
-  const defs = getSvgDefsElement();
-  defs.appendChild(filter);
+  getSvgDefsElement().appendChild(filter);
 };

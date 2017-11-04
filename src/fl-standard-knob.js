@@ -2,8 +2,7 @@ import './scss/fl-standard-knob.scss';
 
 import {
   svgNS,
-  defineSvgLinearGradient,
-  defineSvgRadialGradient,
+  defineSvgGradient,
   defineBlurFilter,
 } from './utils/svg';
 
@@ -71,7 +70,7 @@ export default class FLStandardKnob extends KnobInput {
     const dial = document.createElementNS(svgNS, 'g');
     dial.classList.add('fl-standard-knob__dial');
 
-    defineSvgRadialGradient('grad__fl-standard-knob__soft-shadow', {cx: 0.5, cy: 0.5, r: 0.5}, {
+    defineSvgGradient('grad__fl-standard-knob__soft-shadow', 'radial', {cx: 0.5, cy: 0.5, r: 0.5}, {
       '85%':  { color: '#242a2e', opacity: 0.4 },
       '100%': { color: '#242a2e', opacity: 0 },
     });
@@ -91,7 +90,7 @@ export default class FLStandardKnob extends KnobInput {
     dialHardShadow.setAttribute('fill', '#242a2e');
     dialHardShadow.setAttribute('opacity', 0.15);
 
-    defineSvgLinearGradient('grad__fl-standard-knob__dial-base', {x1:0, y1:0, x2:0, y2:1}, {
+    defineSvgGradient('grad__fl-standard-knob__dial-base', 'linear', {x1:0, y1:0, x2:0, y2:1}, {
       '0%': '#52595f',
       '100%': '#2b3238',
     });
@@ -104,7 +103,7 @@ export default class FLStandardKnob extends KnobInput {
     dialBase.setAttribute('stroke', '#242a2e');
     dialBase.setAttribute('stroke-width', 1.5);
 
-    defineSvgLinearGradient('grad__fl-standard-knob__dial-highlight', {x1:0, y1:0, x2:0, y2:1}, {
+    defineSvgGradient('grad__fl-standard-knob__dial-highlight', 'linear', {x1:0, y1:0, x2:0, y2:1}, {
       '0%':   { color: '#70777d', opacity: 1 },
       '40%':  { color: '#70777d', opacity: 0 },
       '55%':  { color: '#70777d', opacity: 0 },
