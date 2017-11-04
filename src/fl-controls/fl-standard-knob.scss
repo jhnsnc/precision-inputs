@@ -2,6 +2,10 @@
 
 // FL studio knobs - control styles
 .fl-standard-knob {
+  .fl-standard-knob__svg {
+    overflow: visible; // nested to beat specificity of CSS resets like normalize.css
+  }
+
   &:hover, &.drag-active {
     .fl-standard-knob__dial {
       transform: scale(0.9);
@@ -12,15 +16,12 @@
       opacity: 0.05;
     }
   }
+
   &.focus-active {
     .fl-standard-knob__focus-indicator {
       opacity: 0.8;
     }
   }
-}
-
-.fl-standard-knob__svg {
-  overflow: visible;
 }
 
 .fl-standard-knob__focus-indicator {
