@@ -1,4 +1,4 @@
-# Knob Input
+# Precision Inputs
 
 > ⚠️ **Note:** This library is in **alpha**. The names and functionality of all classes, properties, and methods are subject to change without notice until the full v1.0 release. See [issues](https://github.com/jhnsnc/knob-input/issues/) for discussion of changes.
 
