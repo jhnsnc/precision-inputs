@@ -77,7 +77,7 @@ export function defineSvgRadialGradient(id, sizing = {}, colorStops = {}) {
   if (document.getElementById(id)) { return false; }
 
   // create element, set sizing
-  const radGrad = document.createElementNS(svgNS, 'linearGradient');
+  const radGrad = document.createElementNS(svgNS, 'radialGradient');
   radGrad.id = id;
   if (typeof sizing.cx !== 'undefined')
     radGrad.setAttribute('cx', sizing.cx);
