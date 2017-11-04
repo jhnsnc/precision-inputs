@@ -1,8 +1,6 @@
-@import './utils/easing';
+@import '../utils/easing';
 
 // FL studio knobs - control styles
-$componentName: 'fl-standard-knob';
-
 .fl-standard-knob {
   &:hover, &.drag-active {
     .fl-standard-knob__dial {

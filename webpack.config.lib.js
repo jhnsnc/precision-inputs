@@ -4,7 +4,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 // Plugin config
 const extractSass = new ExtractTextPlugin({
-  filename: '../css/[name].css',
+  filename: '../css/precision-inputs.[name].css',
 });
 
 module.exports = function(env) {
@@ -32,8 +32,8 @@ module.exports = function(env) {
 
   return {
     entry: {
-      'base': './src/knob-input.js',
-      'fl-controls': './src/fl-standard-knob.js',
+      'base': './src/base/index.js',
+      'fl-controls': './src/fl-controls/index.js',
     },
     output: outputTarget,
     module: {

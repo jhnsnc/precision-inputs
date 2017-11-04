@@ -1,13 +1,12 @@
-import './scss/fl-standard-knob.scss';
+import './fl-standard-knob.scss';
 
 import {
   svgNS,
   defineSvgGradient,
   defineBlurFilter,
-} from './utils/svg';
+} from '../utils/svg';
 
-// TODO: update build to handle these components
-import KnobInput from './knob-input';
+import KnobInput from '../base/knob-input';
 
 // options:
 //   - indicatorDot (boolean)

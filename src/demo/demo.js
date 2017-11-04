@@ -1,6 +1,6 @@
 require('./demo.scss');
 
-import FLStandardKnob from '../fl-standard-knob';
+import FLStandardKnob from '../fl-controls/fl-standard-knob';
 import { getTransformProperty, debounce } from '../utils/ui';
 
 // Demo Setup - Envelope Visualization
