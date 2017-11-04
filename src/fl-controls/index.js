@@ -1,8 +1,10 @@
+'use strict';
+
 import base from '../base';
 
 import FLStandardKnob from './fl-standard-knob';
 
-export {
-  base,
+export default {
   FLStandardKnob,
+  ...base
 };

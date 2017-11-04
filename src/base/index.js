@@ -1,5 +1,5 @@
 import KnobInput from './knob-input';
 
-export {
+export default {
   KnobInput,
 };
