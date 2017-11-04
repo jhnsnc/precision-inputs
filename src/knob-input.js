@@ -46,7 +46,6 @@ export default class KnobInput {
     this._visualElement = visualElement;
     this._visualElement.classList.add('knob-input__visual');
 
-    // TODO: move some of this processing to an init() function so it can be called after the wrapper class initialization
     // visual context
     this._visualContext = {
       element: this._visualElement,
