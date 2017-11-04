@@ -1,13 +1,20 @@
-import './scss/knob-input.scss';
+import './knob-input.scss';
 
-import { getTransformProperty } from './utils';
+import { getTransformProperty } from '../utils/ui';
 
 // TODO: add input label for screenreaders
 
+const transformProperty = getTransformProperty();
+
 export default class KnobInput {
-  constructor(containerElement, options) {
-    if (!options) {
-      options = {};
+  constructor(containerElement, visualElement, options = {}) {
+    // make sure containerElement and visualElement are valid
+    if (!containerElement) {
+      throw new Error('KnobInput constructor must receive a valid container element');
+    } else if (!visualElement) {
+      throw new Error('KnobInput constructor must receive a valid visual element');
+    } else if (!containerElement.contains(visualElement)) {
+      throw new Error('The KnobInput\'s container element must contain its visual element');
     }
 
     // settings
@@ -15,7 +22,6 @@ export default class KnobInput {
     var min = typeof options.min === 'number' ? options.min : 0;
     var max = typeof options.max === 'number' ? options.max : 1;
     this.initial = typeof options.initial === 'number' ? options.initial : 0.5 * (min + max);
-    this.visualElementClass = options.visualElementClass || 'control-knob__visual';
     this.dragResistance = typeof options.dragResistance === 'number' ? options.dragResistance : 300;
     this.dragResistance /= max-min;
     this.wheelResistance = typeof options.wheelResistance === 'number' ? options.wheelResistance : 4000;
@@ -34,16 +40,16 @@ export default class KnobInput {
 
     // elements
     this._container = containerElement;
-    this._container.classList.add('control-knob');
+    this._container.classList.add('knob-input__container');
     this._input = rangeInput;
-    this._input.classList.add('control-knob__input');
-    this._visualElement = this._container.querySelector(`.${this.visualElementClass}`);
-    this._visualElement.classList.add('control-knob__visual');
+    this._input.classList.add('knob-input__input');
+    this._visualElement = visualElement;
+    this._visualElement.classList.add('knob-input__visual');
 
     // visual context
     this._visualContext = {
       element: this._visualElement,
-      transformProperty: getTransformProperty(),
+      transformProperty: transformProperty,
     };
     this.setupVisualContext.apply(this._visualContext);
     this.updateVisuals = this.updateVisuals.bind(this._visualContext);
@@ -75,7 +81,7 @@ export default class KnobInput {
     this._input.addEventListener('dblclick', this._handlers.doubleClick);
     this._input.addEventListener('focus', this._handlers.focus);
     this._input.addEventListener('blur', this._handlers.blur);
-    // init
+    // set initial value
     this.updateToInputValue();
   }
 
@@ -161,6 +167,7 @@ export default class KnobInput {
 
   handleMouseWheel(evt) {
     // console.log('mouse wheel');
+    evt.preventDefault();
     this._input.focus();
     this.clearDrag();
     this._prevValue = parseFloat(this._input.value);
@@ -190,7 +197,7 @@ export default class KnobInput {
     this._prevValue = parseFloat(this._input.value);
 
     this._input.focus();
-    document.body.classList.add('control-knob__drag-active');
+    document.body.classList.add('knob-input__drag-active');
     this._container.classList.add('drag-active');
   }
 
@@ -208,7 +215,7 @@ export default class KnobInput {
   }
 
   clearDrag() {
-    document.body.classList.remove('control-knob__drag-active');
+    document.body.classList.remove('knob-input__drag-active');
     this._container.classList.remove('drag-active');
     this._activeDrag = false;
     this._input.dispatchEvent(new InputEvent('change'));

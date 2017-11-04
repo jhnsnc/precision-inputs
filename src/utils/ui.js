@@ -1,4 +1,3 @@
-
 function getSupportedPropertyName(properties) {
   for (var i = 0; i < properties.length; i++)
     if (typeof document.body.style[properties[i]] !== 'undefined')
@@ -26,5 +25,3 @@ export function debounce(func, wait, immediate) {
     if (callNow) func.apply(context, args);
   };
 };
-
-export const transformProp = getTransformProperty(); // TODO: remove

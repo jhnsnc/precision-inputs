@@ -36,21 +36,22 @@ This library is in active development. Please report any issues you discover [on
 
 > If you are using CommonJS or UMD modules for your front-end, you can instead use the scripts in `common/` and `umd/` respectively.
 
-2. Create a container element with class `knob-input` and a visual element inside the container with class `knob-input__visual`.
+2. Create a container element and a visual element.
 
 ```html
-<div class="knob-input">
-  <div class="knob-input__visual"></div>
+<div class="my-knob-container">
+  <div class="my-knob-visuals"></div>
 </div>
 ```
 
-> The container may be any size, and the visual element should be styled how you want the input to look, filling all the available space.
+> The container may be any size, and the visual element should be styled how you want the input to look. They will receive the classes `knob-input__container` and `knob-input__visual` respectively upon initialization.
 
 3. Initialize the component in your JS:
 
 ```js
-var myKnobContainer = document.querySelector('.knob-input');
-var myKnobInput = new KnobInput(myKnobContainer);
+var myKnobContainer = document.querySelector('.my-knob-container');
+var myKnobVisuals = document.querySelector('.my-knob-visuals');
+var myKnobInput = new KnobInput(myKnobContainer, myKnobVisuals);
 ```
 
 4. Access the value when needed, as you would with a normal input element:
@@ -73,7 +74,7 @@ myKnobInput.addEventListener('change', function(evt) {
 You can specify a `min` and `max` value in the setup function, as well as a `step` size. These behave the same way as with the standard [range input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/range) element.
 
 ```js
-var myKnobInput = new KnobInput(myKnobContainer, {
+var myKnobInput = new KnobInput(myKnobContainer, myKnobVisuals, {
   min: -100,
   max: 100,
   step: 5
@@ -83,7 +84,7 @@ var myKnobInput = new KnobInput(myKnobContainer, {
 You can also set an `initial` value and determine how precise drag and mouse wheel actions are with the `dragResistance` and `wheelResistance` options.
 
 ```js
-var myKnobInput = new KnobInput(myKnobContainer, {
+var myKnobInput = new KnobInput(myKnobContainer, myKnobVisuals, {
   initial: 0.4, // default = half-way between `min` and `max`
   dragResistance: 500, // default = 300
   wheelResistance: 3000, // default = 4000
@@ -121,7 +122,7 @@ The input container will also receive the class `focus-active` whenever the inpu
 You can set a custom `updateVisuals` callback to update the appearance of the input's visual element. Any time the input changes value, this callback will get called with two parameters: the new input value in normalized form (`0` ≤ `n` ≤ `1`) and the actual new value.
 
 ```js
-var myKnobInput = new KnobInput(myKnobContainer, {
+var myKnobInput = new KnobInput(myKnobContainer, myKnobVisuals, {
   updateVisuals: function(norm) {
     // rotate the element between 0 and 360 degrees, based on current value
     this.element.style[this.transformProperty] = 'rotate(' + (360*norm) + 'deg)';
@@ -136,7 +137,7 @@ Inside the `updateVisuals` callback, the visual element will always be available
 You can extend the visual context by specifying a `visualContext` function. This gets run once on creation and can be useful for caching DOM elements and calculated values, so that the `updateVisuals` can be more efficient and avoid unnecessary DOM operations, calculations, etc.
 
 ```js
-var myKnobInput = new KnobInput(myKnobContainer, {
+var myKnobInput = new KnobInput(myKnobContainer, myKnobVisuals, {
   visualContext: function() {
     // cache DOM elemetn
     this.textDisplay = this.element.querySelector('div.current-value-indicator');
@@ -167,7 +168,7 @@ var myKnobInput = new KnobInput(myKnobContainer, {
 
 ## All Options
 
-In addition to the `containerElement` parameter of the `KnobInput` constructor, there is an `options` object for you to specify any of the following settings.
+In addition to the `containerElement` and `visualElement` parameters of the `KnobInput` constructor, there is an `options` object for you to specify any of the following settings.
 
 | `options` property   | default value | description |
 |----------------------|---------------|-------------|
@@ -179,4 +180,3 @@ In addition to the `containerElement` parameter of the `KnobInput` constructor, 
 | `wheelResistance`    | `4000` | The amount of resistance to value change on mouse wheel scroll. Higher value means more precision, and the mouse wheel will be less effective at changing the input's value. |
 | `visualContext`      | callback that sets `minRotation` to `0` and `maxRotation` to `360` | Callback that allows for customization of the visual context by setting properties via `this`. Note that `this.element` and `this.transformProperty` will already have values. Useful for caching DOM references, calculations, etc for use in the `updateVisuals` callback. |
 | `updateVisuals`      | callback that updates visual element rotation based on `minRotation`/`maxRotation` | Custom callback for updating the input visuals based on changes to the input value. Has access to the visual context via `this` (e.g. `this.element`). |
-| `visualElementClass` | `'control-knob__visual'` | **deprecated** This option will likely be removed or changed. It is not recommended to use this. |

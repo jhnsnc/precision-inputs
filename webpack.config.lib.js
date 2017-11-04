@@ -4,22 +4,20 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 // Plugin config
 const extractSass = new ExtractTextPlugin({
-  filename: '../css/[name].css',
+  filename: '../css/precision-inputs.[name].css',
 });
 
 module.exports = function(env) {
 
   const outputTarget = {
     // path set below
-    filename: 'knob-input.js',
-    library: 'KnobInput',
+    filename: 'precision-inputs.[name].js',
+    library: 'PrecisionInputs',
     libraryExport: 'default',
     // libraryTarget set below
   };
 
-  if (!env || !env.target) {
-    return false;
-  } else if (env.target === 'window') {
+  if (env.target === 'window') {
     outputTarget.path = path.join(__dirname, 'scripts');
     outputTarget.libraryTarget = 'window';
   } else if (env.target === 'umd') {
@@ -34,7 +32,8 @@ module.exports = function(env) {
 
   return {
     entry: {
-      'knob-input': './src/knob-input.js',
+      'base': './src/base/index.js',
+      'fl-controls': './src/fl-controls/index.js',
     },
     output: outputTarget,
     module: {

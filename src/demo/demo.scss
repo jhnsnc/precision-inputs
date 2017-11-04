@@ -1,7 +1,4 @@
-$easeInSine: cubic-bezier(0.470, 0.000, 0.745, 0.715);
-$easeOutSine: cubic-bezier(0.390, 0.575, 0.565, 1.000);
-$easeInCirc: cubic-bezier(0.600, 0.040, 0.980, 0.335);
-$easeOutCirc: cubic-bezier(0.075, 0.820, 0.165, 1.000);
+@import '../utils/easing';
 
 // general
 
@@ -14,6 +11,7 @@ html, body {
 }
 body {
   padding: 1px;
+  margin: 0;
   background: radial-gradient(#1a1d22, #121318);
 }
 .defs {
@@ -27,7 +25,7 @@ body {
 
 $envelope-knob-size: 80px;
 $tension-knob-size: 60px;
-.fl-studio-asdr {
+.fl-envelope {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -38,8 +36,12 @@ $tension-knob-size: 60px;
   border: 2px solid #272d31;
   box-shadow: 0 10px 70px rgba(#000000, 0.6);
   transform: translate(-50%,-50%);
+
+  * {
+    user-select: none;
+  }
 }
-.fl-studio-asdr__visualizer {
+.fl-envelope__visualizer {
   height: 200px;
   background: #21272b;
   border: 2px solid #191f23;
@@ -49,21 +51,21 @@ $tension-knob-size: 60px;
     overflow: visible;
   }
 }
-.fl-studio-asdr__controls, .fl-studio-asdr__tension {
+.fl-envelope__controls, .fl-envelope__tension {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.fl-studio-asdr__controls {
+.fl-envelope__controls {
   padding: 30px 0 0;
 }
-.fl-studio-asdr__control {
+.fl-envelope__control {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.fl-studio-asdr__label {
+.fl-envelope__label {
   flex: 0 0 auto;
   display: inline-block;
   padding: 10px 0;
@@ -77,9 +79,9 @@ $tension-knob-size: 60px;
   text-transform: uppercase;
 }
 
-// FL studio knobs - control styles
+// FL Standard Knobs - sizing for wrapper class demo
 
-.fl-studio-asdr__knob {
+.fl-demo-knob {
   flex: 0 0 auto;
   &.envelope-knob {
     width: $envelope-knob-size;
@@ -89,60 +91,5 @@ $tension-knob-size: 60px;
     padding: ($envelope-knob-size - $tension-knob-size)/2;
     width: $envelope-knob-size;
     height: $envelope-knob-size;
-  }
-  .control-knob__visual {
-    overflow: visible;
-  }
-  .dial {
-    transform-origin: 20px 20px;
-    transition: all 600ms $easeOutSine;
-  }
-  .dial-highlight {
-    opacity: 0;
-    transition: all 300ms $easeOutSine;
-  }
-  &:hover, &.drag-active {
-    .dial {
-      transform: scale(0.9);
-      filter: brightness(10.2);
-      transition: all 300ms $easeOutSine;
-    }
-    .dial-highlight {
-      opacity: 0.05;
-    }
-  }
-  .focus-indicator {
-    opacity: 0;
-    transition: all 300ms $easeOutSine;
-  }
-  &.focus-active {
-    .focus-indicator {
-      opacity: 0.8;
-    }
-  }
-}
-
-// Control Knob component styles
-.control-knob {
-  position: relative;
-}
-.control-knob__visual {
-  pointer-events: none;
-  width: 100%;
-  height: 100%;
-}
-.control-knob__input {
-  cursor: grab;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;  
-  transform: rotate(-90deg);
-}
-body.control-knob__drag-active {
-  &, * {
-    cursor: grabbing !important;
   }
 }
