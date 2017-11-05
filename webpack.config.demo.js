@@ -10,12 +10,12 @@ const IS_DEV = (process.env.NODE_ENV === 'dev');
 // Plugin config
 const htmlDocumentPlugin = new HtmlWebpackPlugin({
   template: './src/demo/demo.html',
-  filename: 'index.html',
+  filename: 'demo.html',
   inject: 'body',
 });
 
 const extractSass = new ExtractTextPlugin({
-  filename: '[name].[contenthash].css',
+  filename: 'precision-inputs.[name].css',
   disable: IS_DEV,
 });
 
@@ -39,29 +39,14 @@ module.exports = {
           compact: true,
         },
       },
-      {
-        test: /\.jsx$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/,
-      },
-      // CSS/SCSS
-      {
-        test: /\.css$/,
-        use: extractSass.extract({
-          use: [{
-            loader: 'css-loader?importLoaders=1'
-          }, {
-            loader: 'sass-loader'
-          }],
-          // use style-loader in development
-          fallback: 'style-loader'
-        })
-      },
+      // SCSS
       {
         test: /\.(scss|sass)$/,
         use: extractSass.extract({
           use: [{
             loader: 'css-loader'
+          }, {
+            loader: 'postcss-loader'
           }, {
             loader: 'sass-loader'
           }],

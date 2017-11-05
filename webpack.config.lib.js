@@ -58,6 +58,8 @@ module.exports = function(env) {
                 minimize: true,
               }
             }, {
+              loader: 'postcss-loader'
+            }, {
               loader: 'sass-loader'
             }],
             // use style-loader in development
