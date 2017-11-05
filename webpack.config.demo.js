@@ -10,7 +10,7 @@ const IS_DEV = (process.env.NODE_ENV === 'dev');
 // Plugin config
 const htmlDocumentPlugin = new HtmlWebpackPlugin({
   template: './src/demo/demo.html',
-  filename: 'demo.html',
+  filename: 'index.html',
   inject: 'body',
 });
 
