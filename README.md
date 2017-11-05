@@ -10,7 +10,7 @@ This library is in active development. Please report any issues you discover [on
 
 ## Documentation
 
-See [the documentation table-of-contents](https://github.com/jhnsnc/precision-inputs/tree/master/docs/index.md) for instructions on how to use/customize each type of component.
+See [the documentation table-of-contents](https://github.com/jhnsnc/precision-inputs/tree/master/docs/) for instructions on how to use/customize each type of component.
 
 ## Planned Features
 

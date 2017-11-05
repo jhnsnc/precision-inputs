@@ -4,7 +4,7 @@ The `KnobInput` class is base component for defining a single knob, dial, slider
 
 The base class alone provides no visual component and very simple defaults, but it is designed to be customizable for all sorts of applications. It also takes care of accessibility, supporting user input via mouse drag, touchscreen drag, mouse wheel, mouse double-click, and keyboard.
 
-If you want a fully styled input, look at the [documentation for other components](https://github.com/jhnsnc/precision-inputs/tree/master/docs/index.md) or read below to customize your own.
+If you want a fully styled input, look at the [documentation for other components](https://github.com/jhnsnc/precision-inputs/tree/master/docs/) or read below to customize your own.
 
 ## Basic Usage
 
