@@ -8,6 +8,11 @@ html, body {
   height: 100%;
 }
 body {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+  align-content: space-around;
+  align-items: center;
   padding: 1px;
   margin: 0;
   background: radial-gradient(#1a1d22, #121318);

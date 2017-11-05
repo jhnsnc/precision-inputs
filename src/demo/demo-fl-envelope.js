@@ -48,6 +48,7 @@ export default function setupFLEnvelope() {
     release: container.querySelector('.release'),
   };
   flEnvelopeVisualizer.shape.setAttribute('stroke', FLColors.default.str);
+  flEnvelopeVisualizer.shape.setAttribute('fill', 'transparent');
   flEnvelopeVisualizer.delay.setAttribute('stroke', FLColors.default.str);
   flEnvelopeVisualizer.delay.setAttribute('fill', numToHexstring(mixColors(FLColors.default.val, 0x000000, 0.6)) );
   flEnvelopeVisualizer.attack.setAttribute('stroke', FLColors.default.str);

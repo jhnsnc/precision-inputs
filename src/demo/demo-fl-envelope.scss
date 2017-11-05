@@ -5,16 +5,13 @@
 $envelope-knob-size: 80px;
 $tension-knob-size: 60px;
 .fl-envelope {
-  position: absolute;
-  left: 50%;
-  top: 50%;
+  flex: 0 0 auto;
   width: 600px;
   padding: 20px;
   overflow: hidden;
   background: #363c40;
   border: 2px solid #272d31;
   box-shadow: 0 10px 70px rgba(#000000, 0.6);
-  transform: translate(-50%,-50%);
 
   * {
     user-select: none;
