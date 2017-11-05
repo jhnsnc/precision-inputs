@@ -6,6 +6,8 @@ import {
   defineBlurFilter,
 } from '../utils/svg';
 
+import colors from './fl-colors';
+
 import KnobInput from '../base/knob-input';
 
 // options:
@@ -22,7 +24,7 @@ export default class FLStandardKnob extends KnobInput {
     // options
     const showIndicatorDot = typeof options.indicatorDot !== 'undefined' ? options.indicatorDot : true;
     const indicatorRingType = typeof options.indicatorRingType !== 'undefined' ? options.indicatorRingType : 'positive';
-    const color = typeof options.color !== 'undefined' ? options.color : '#4eccff';
+    const color = typeof options.color !== 'undefined' ? options.color : colors.default;
 
     // construct visual element and attach to DOM
     const visualElement = FLStandardKnob._constructVisualElement(showIndicatorDot, color);
