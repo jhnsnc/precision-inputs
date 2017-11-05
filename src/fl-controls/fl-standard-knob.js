@@ -24,7 +24,7 @@ export default class FLStandardKnob extends KnobInput {
     // options
     const showIndicatorDot = typeof options.indicatorDot !== 'undefined' ? options.indicatorDot : true;
     const indicatorRingType = typeof options.indicatorRingType !== 'undefined' ? options.indicatorRingType : 'positive';
-    const color = typeof options.color !== 'undefined' ? options.color : colors.default;
+    const color = typeof options.color !== 'undefined' ? options.color : colors.default.str;
 
     // construct visual element and attach to DOM
     const visualElement = FLStandardKnob._constructVisualElement(showIndicatorDot, color);
