@@ -8,13 +8,13 @@ If you want a fully styled input, look at the [documentation for other component
 
 ## Basic Usage
 
-1. Include the base component styles from `css/precision-inputs.base.css` and the base component script from `scripts/precision-inputs.base.js`.
+1. **Include base styles from `css/precision-inputs.base.css` and base component script from `scripts/precision-inputs.base.js`**
 
-> If you are using CommonJS or UMD modules for your front-end, you can instead use the scripts in `common/` and `umd/` respectively.
+> If you are using CommonJS or UMD modules for your front-end, you can instead use the script in `common/` and `umd/` respectively.
 
 > If you are including styled components, those CSS/JS files also include all base component styles/classes.
 
-2. Create a container element and a visual element.
+2. **Create a container element and a visual element:**
 
 ```html
 <div class="my-knob-container">
@@ -24,7 +24,7 @@ If you want a fully styled input, look at the [documentation for other component
 
 > The container may be any size, and the visual element should be styled how you want the input to look. They will receive the classes `knob-input__container` and `knob-input__visual` respectively upon initialization.
 
-3. Initialize the component in your JS:
+3. **Initialize the component in your JS:**
 
 ```js
 var myKnobContainer = document.querySelector('.my-knob-container');
@@ -32,11 +32,11 @@ var myKnobVisuals = document.querySelector('.my-knob-visuals');
 var myKnobInput = new KnobInput(myKnobContainer, myKnobVisuals);
 ```
 
-4. Access the value when needed via JS:
+4. **Access the value when needed via JS:**
 
 ```js
 // retrieve value
-var currentValue = myKnobInput;
+var currentValue = myKnobInput.value;
 
 // set value
 myKnobInput.value = 0.5;
