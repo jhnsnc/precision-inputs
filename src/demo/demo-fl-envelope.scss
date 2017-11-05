@@ -5,17 +5,8 @@
 $envelope-knob-size: 80px;
 $tension-knob-size: 60px;
 .fl-envelope {
-  flex: 0 0 auto;
   width: 600px;
   padding: 20px;
-  overflow: hidden;
-  background: #363c40;
-  border: 2px solid #272d31;
-  box-shadow: 0 10px 70px rgba(#000000, 0.6);
-
-  * {
-    user-select: none;
-  }
 }
 .fl-envelope__visualizer {
   height: 200px;

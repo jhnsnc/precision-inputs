@@ -1,0 +1,36 @@
+$mod-wheel-size: 120px;
+
+.mod-wheels {
+  width: 450px;
+  height: 250px;
+  padding: 30px;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mod-wheels__control {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mod-wheels__knob {
+  flex: 0 0 auto;
+  width: $mod-wheel-size;
+  height: $mod-wheel-size;
+}
+.mod-wheels__label {
+  flex: 0 0 auto;
+  display: inline-block;
+  padding: 10px 0;
+  width: $mod-wheel-size;
+  color: #c1c5c5;
+  font-size: 12px;
+  font-family: 'Helvetica', sans-serif;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}

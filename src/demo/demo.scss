@@ -2,6 +2,7 @@
 
 * {
   box-sizing: border-box;
+  user-select: none;
 }
 html, body {
   width: 100%;
@@ -16,4 +17,12 @@ body {
   padding: 1px;
   margin: 0;
   background: radial-gradient(#1a1d22, #121318);
+}
+
+.demo-panel {
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: #363c40;
+  border: 2px solid #272d31;
+  box-shadow: 0 10px 70px rgba(#000000, 0.6);
 }
