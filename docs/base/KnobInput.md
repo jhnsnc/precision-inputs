@@ -64,8 +64,8 @@ You can also set an `initial` value and determine how precise drag and mouse whe
 ```js
 var myKnobInput = new KnobInput(myKnobContainer, myKnobVisuals, {
   initial: 0.4, // default = half-way between `min` and `max`
-  dragResistance: 500, // default = 300
-  wheelResistance: 3000, // default = 4000
+  dragResistance: 150, // default = 100
+  wheelResistance: 70, // default = 100
 });
 ```
 
@@ -154,7 +154,7 @@ In addition to the `containerElement` and `visualElement` parameters of the `Kno
 | `max`                | `1` | The maximum input value. Same as with the standard [range input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/range) element. |
 | `step`               | `'any'` | The step amount for value changes. Same as with the standard [range input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/range) element. |
 | `initial`            | average of `min` and `max` | The initial value of the input. Also used when the user double-clicks to reset the input value. |
-| `dragResistance`     | `300` | The amount of resistance to value change on mouse/touch drag events. Higher value means more precision, and the user will have to drag farther to change the input's value. |
-| `wheelResistance`    | `4000` | The amount of resistance to value change on mouse wheel scroll. Higher value means more precision, and the mouse wheel will be less effective at changing the input's value. |
+| `dragResistance`     | `100` | The amount of resistance to value change on mouse/touch drag events. Higher value means more precision, and the user will have to drag farther to change the input's value. |
+| `wheelResistance`    | `100` | The amount of resistance to value change on mouse wheel scroll. Higher value means more precision, and the mouse wheel will be less effective at changing the input's value. |
 | `visualContext`      | callback that sets `minRotation` to `0` and `maxRotation` to `360` | Callback that allows for customization of the visual context by setting properties via `this`. Note that `this.element` and `this.transformProperty` will already have values. Useful for caching DOM references, calculations, etc for use in the `updateVisuals` callback. |
 | `updateVisuals`      | callback that updates visual element rotation based on `minRotation`/`maxRotation` | Custom callback for updating the input visuals based on changes to the input value. Has access to the visual context via `this` (e.g. `this.element`). |

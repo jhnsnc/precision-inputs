@@ -22,9 +22,11 @@ export default class KnobInput {
     var min = typeof options.min === 'number' ? options.min : 0;
     var max = typeof options.max === 'number' ? options.max : 1;
     this.initial = typeof options.initial === 'number' ? options.initial : 0.5 * (min + max);
-    this.dragResistance = typeof options.dragResistance === 'number' ? options.dragResistance : 300;
+    this.dragResistance = typeof options.dragResistance === 'number' ? options.dragResistance : 100;
+    this.dragResistance *= 3;
     this.dragResistance /= max-min;
-    this.wheelResistance = typeof options.wheelResistance === 'number' ? options.wheelResistance : 4000;
+    this.wheelResistance = typeof options.wheelResistance === 'number' ? options.wheelResistance : 100;
+    this.wheelResistance *= 40;
     this.wheelResistance /= max-min;
     this.setupVisualContext = typeof options.visualContext === 'function' ? options.visualContext : KnobInput.setupRotationContext(0, 360);
     this.updateVisuals = typeof options.updateVisuals === 'function' ? options.updateVisuals : KnobInput.rotationUpdateFunction;
