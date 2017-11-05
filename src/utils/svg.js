@@ -64,13 +64,21 @@ export function defineSvgGradient(id, type, attributes = {}, colorStops = {}) {
   getSvgDefsElement().appendChild(gradientElement);
 };
 
-export function defineBlurFilter(id, blurAmount, compositeMethod = 'none') {
+export function defineBlurFilter(id, blurAmount, compositeMethod = 'none', padding = null) {
   // exit early if gradient already exists
   if (document.getElementById(id)) { return false; }
 
   // create filter
   const filter = document.createElementNS(svgNS, 'filter');
   filter.id = id;
+
+  // add padding
+  if (typeof padding === 'number') {
+    filter.setAttribute('x', -1 * padding);
+    filter.setAttribute('y', -1 * padding);
+    filter.setAttribute('width', 1 + 2 * padding);
+    filter.setAttribute('height', 1 + 2 * padding);
+  }
 
   // create gaussian blur
   const blur = document.createElementNS(svgNS, 'feGaussianBlur');
