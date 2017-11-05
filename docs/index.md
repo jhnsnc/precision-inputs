@@ -3,6 +3,6 @@
 ## Table of Contents
 
 - base components
-  - [KnobInput](https://github.com/jhnsnc/precision-inputs/tree/master/docs/base/KnobInput.md)
+  - [`KnobInput`](https://github.com/jhnsnc/precision-inputs/tree/master/docs/base/KnobInput.md)
 - FL Controls
-  - FLStandardKnob (docs coming soon)
+  - [`FLStandardKnob`](https://github.com/jhnsnc/precision-inputs/tree/master/docs/fl-controls/FLStandardKnob.md)
