@@ -9,6 +9,10 @@ function getSvgDefsElement() {
 
   // otherwise create it
   const svg = document.createElementNS(svgNS, 'svg');
+  svg.style.position = 'absolute';
+  svg.style.left = 0;
+  svg.style.top = 0;
+  svg.style.opacity = 0;
   const defs = document.createElementNS(svgNS, 'defs');
   defs.id = 'precision-inputs-svg-defs';
   svg.appendChild(defs);
