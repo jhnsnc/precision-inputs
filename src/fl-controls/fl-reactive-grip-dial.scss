@@ -1,0 +1,40 @@
+@import '../utils/easing';
+
+// FL studio knobs - control styles
+.fl-reactive-grip-dial {
+  .fl-reactive-grip-dial__svg {
+    overflow: visible; // nested to beat specificity of CSS resets like normalize.css
+  }
+
+  &:hover, &.drag-active {
+    .fl-reactive-grip-dial__dial {
+      transform: scale(0.9);
+      filter: brightness(10.2);
+      transition: all 300ms $easeOutSine;
+    }
+    .fl-reactive-grip-dial__dial-highlight {
+      opacity: 0.05;
+    }
+  }
+
+  &.focus-active {
+    .fl-reactive-grip-dial__focus-indicator {
+      opacity: 0.8;
+    }
+  }
+}
+
+.fl-reactive-grip-dial__focus-indicator {
+  opacity: 0;
+  transition: all 300ms $easeOutSine;
+}
+
+.fl-reactive-grip-dial__dial {
+  transform-origin: 20px 20px;
+  transition: all 600ms $easeOutSine;
+}
+
+.fl-reactive-grip-dial__dial-highlight {
+  opacity: 0;
+  transition: all 300ms $easeOutSine;
+}
