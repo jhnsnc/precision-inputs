@@ -12,6 +12,8 @@ function getSvgDefsElement() {
   svg.style.position = 'absolute';
   svg.style.left = 0;
   svg.style.top = 0;
+  svg.style.width = 0;
+  svg.style.height = 0;
   svg.style.opacity = 0;
   const defs = document.createElementNS(svgNS, 'defs');
   defs.id = 'precision-inputs-svg-defs';
