@@ -16,7 +16,7 @@ export default {
   panning: purple,
   volume: blue,
   modX: green,
-  moxY: yellow,
+  modY: yellow,
   pitch: red,
   misc: orange,
   default: orange,
