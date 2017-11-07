@@ -9,7 +9,6 @@
   &:hover, &.drag-active {
     .fl-standard-knob__dial {
       transform: scale(0.9);
-      filter: brightness(10.2);
       transition: all 300ms $easeOutSine;
     }
     .fl-standard-knob__dial-highlight {

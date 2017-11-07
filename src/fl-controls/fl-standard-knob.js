@@ -45,14 +45,14 @@ export default class FLStandardKnob extends KnobInput {
     svg.classList.add('fl-standard-knob__svg');
     svg.setAttribute('viewBox', '0 0 40 40');
 
-    defineBlurFilter('grad__fl-standard-knob__focus-indicator-glow', 2, 'none', 0.2);
+    defineBlurFilter('filter__fl-standard-knob__focus-indicator-glow', 2, 'none', 0.2);
     const focusIndicator = document.createElementNS(svgNS, 'circle');
     focusIndicator.classList.add('fl-standard-knob__focus-indicator');
     focusIndicator.setAttribute('cx', 20);
     focusIndicator.setAttribute('cy', 20);
     focusIndicator.setAttribute('r', 18);
     focusIndicator.setAttribute('fill', color);
-    focusIndicator.setAttribute('filter', 'url(#grad__fl-standard-knob__focus-indicator-glow)');
+    focusIndicator.setAttribute('filter', 'url(#filter__fl-standard-knob__focus-indicator-glow)');
 
     const indicatorRingBg = document.createElementNS(svgNS, 'circle');
     indicatorRingBg.classList.add('fl-standard-knob__indicator-ring-bg');
