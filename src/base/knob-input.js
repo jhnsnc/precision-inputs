@@ -201,6 +201,7 @@ export default class KnobInput {
     this._input.focus();
     document.body.classList.add('knob-input__drag-active');
     this._container.classList.add('drag-active');
+    this._input.dispatchEvent(new InputEvent('knobdragstart'));
   }
 
   updateDrag(yPosition) {
@@ -214,6 +215,7 @@ export default class KnobInput {
     this.updateFromDrag(diff, this.dragResistance);
     this.clearDrag();
     this._input.dispatchEvent(new InputEvent('change'));
+    this._input.dispatchEvent(new InputEvent('knobdragend'));
   }
 
   clearDrag() {
