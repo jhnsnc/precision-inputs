@@ -17,13 +17,22 @@ import colors from './fl-colors';
 
 import KnobInput from '../base/knob-input';
 
+// TODO: remove unused
+const sineIn = n => -Math.cos(n*Math.PI/2) + 1;
+const sineOut = n => Math.sin(n*Math.PI/2);
+const sineInOut = n => (-Math.cos(n*Math.PI) + 1) / 2;
+
 let instanceCount = 0;
+
+const thetaOffset = Math.PI/2;
+const x = (r, theta) => 20 + r*Math.cos(thetaOffset + theta);
+const y = (r, theta) => 20 + r*Math.sin(thetaOffset + theta);
 
 // options:
 //   - indicatorDotColor (string, hexcolor) - 'transparent' to disable (default = FL default color)
 //   - guideTicks (int) - number of tick marks on the outer guide ring (default = 9)
 //   - gripBumps (int) - number of grip bumps that appear when interacting with the dial (default = 5)
-//   - gripExtrusion (Number) - the degree to which the grips 'cut' into the dial when the user interacts with it, range (0.0, 1.0) (default = 0.6)
+//   - gripExtrusion (Number) - the degree to which the grips 'cut' into the dial when the user interacts with it, range (0.0, 1.0) (default = 0.5)
 //   - minRotation (Number) - angle of rotation corresponding to the `min` value, relative to pointing straight down (default = pointing to the first notch)
 //   - maxRotation (Number) - angle of rotation corresponding to the `max` value, relative to pointing straight down (default = pointing to the last notch)
 export default class FLReactiveGripDial extends KnobInput {
@@ -37,7 +46,7 @@ export default class FLReactiveGripDial extends KnobInput {
     const indicatorDotColor = typeof options.indicatorDotColor !== 'undefined' ? options.indicatorDotColor : colors.default.str;
     const guideTicks = typeof options.guideTicks === 'number' ? options.guideTicks : 9;
     const gripBumps = typeof options.gripBumps === 'number' ? options.gripBumps : 5;
-    const gripExtrusion = typeof options.gripExtrusion === 'number' ? options.gripExtrusion : 0.6;
+    const gripExtrusion = typeof options.gripExtrusion === 'number' ? options.gripExtrusion : 0.5;
     const minRotation = typeof options.minRotation === 'number' ? options.minRotation : (0.5/guideTicks) * 360;
     const maxRotation = typeof options.maxRotation === 'number' ? options.maxRotation : (1-(0.5/guideTicks)) * 360;
 
@@ -45,7 +54,7 @@ export default class FLReactiveGripDial extends KnobInput {
     const visualElement = FLReactiveGripDial._constructVisualElement(indicatorDotColor, guideTicks, minRotation, maxRotation);
 
     // create visual update functions
-    options.visualContext = FLReactiveGripDial._getVisualSetupFunction(minRotation, maxRotation, gripBumps, gripExtrusion);
+    options.visualContext = FLReactiveGripDial._getVisualSetupFunction(minRotation, maxRotation);
     options.updateVisuals = FLReactiveGripDial._getVisualUpdateFunction();
 
     containerElement.classList.add('fl-reactive-grip-dial');
@@ -53,20 +62,95 @@ export default class FLReactiveGripDial extends KnobInput {
 
     // call constructor
     super(containerElement, visualElement, options);
+
+    // morph grip dial shape on hover
+    this.gripBumps = gripBumps;
+    this.gripExtrusion = gripExtrusion;
+    this.activeMorph = {
+      id: null, // RAF ID
+      progress: 0.0,
+      startTime: 0,
+      targetTime: 0,
+      direction: 1,
+    };
+    this.mouseX = 0;
+    this.mouseY = 0;
+
+    this._reactiveDialHandlers = {
+      hover: this.handleHover.bind(this),
+      move: this.handleMove.bind(this),
+      unhover: this.handleUnhover.bind(this),
+      dragStart: this.handleDragStart.bind(this),
+      dragEnd: this.handleDragEnd.bind(this),
+    };
+
+    this.addEventListener('mouseover', this._reactiveDialHandlers.hover);
+    this.addEventListener('knobdragstart', this._reactiveDialHandlers.dragStart);
+  }
+
+  handleHover(evt) {
+    // update mouse position
+    this.mouseX = evt.clientX;
+    this.mouseY = evt.clientY;
+    // start hover
+    this.startHoverEffect();
+  }
+
+  handleMove(evt) {
+    // update mouse position
+    this.mouseX = evt.clientX;
+    this.mouseY = evt.clientY;
+    // check if still hovering
+    const dims = this._input.getBoundingClientRect();
+    if (evt.clientX < dims.left || evt.clientX > dims.right || evt.clientY < dims.top || evt.clientY > dims.bottom) {
+      // out of bounds, end hover
+      this.stopHoverEffect();
+    }
+  }
+
+  handleUnhover(evt) {
+    this.stopHoverEffect();
+  }
+
+  handleDragStart(evt) {
+    this.startHoverEffect();
+  }
+
+  handleDragEnd(evt) {
+    this.stopHoverEffect();
+  }
+
+  startHoverEffect() {
+    // add event listeners
+    document.body.addEventListener('mousemove', this._reactiveDialHandlers.move);
+    this.addEventListener('mouseout', this._reactiveDialHandlers.unhover);
+    this.addEventListener('knobdragend', this._reactiveDialHandlers.dragEnd);
+
+    // start tween
+    this.morphGripShape(1.0);
+  }
+
+  stopHoverEffect() {
+    // if a drag is still active or the mouse is still hovering, do not stop effect
+    const dims = this._input.getBoundingClientRect();
+    const isHovering = this.mouseX >= dims.left && this.mouseX <= dims.right && this.mouseY >= dims.top && this.mouseY <= dims.bottom;
+    if (isHovering || this._activeDrag) {
+      return false;
+    }
+
+    // remove event listeners
+    document.body.removeEventListener('mousemove', this._reactiveDialHandlers.move);
+    this.removeEventListener('mouseout', this._reactiveDialHandlers.unhover);
+    this.removeEventListener('knobdragend', this._reactiveDialHandlers.dragEnd);
+
+    // end tween
+    this.morphGripShape(0.0);
   }
 
   static _constructVisualElement(indicatorDotColor, guideTicks, minRotation, maxRotation) {
     const svg = document.createElementNS(svgNS, 'svg');
     svg.classList.add('fl-reactive-grip-dial__svg');
     svg.setAttribute('viewBox', '0 0 40 40');
-
-    // point position utils
-    const thetaOffset = Math.PI/2;
-    const minTheta = minRotation * Math.PI / 180;
-    const maxTheta = maxRotation * Math.PI / 180;
-    const thetaDelta = maxTheta - minTheta;
-    const x = (r, theta) => 20 + r*Math.cos(thetaOffset + theta);
-    const y = (r, theta) => 20 + r*Math.sin(thetaOffset + theta);
 
     // container for defs specific to this dial instance
     const defs = document.createElementNS(svgNS, 'defs');
@@ -81,6 +165,9 @@ export default class FLReactiveGripDial extends KnobInput {
     defs.appendChild(gripMask);
 
     // guides
+    const minTheta = minRotation * Math.PI / 180;
+    const maxTheta = maxRotation * Math.PI / 180;
+    const thetaDelta = maxTheta - minTheta;
     const guides = createGroup({ classes: 'fl-reactive-grip-dial__guides' });
     const guideRing = createPath(`M${x(16,minTheta)},${y(16,minTheta)}A16,16,0,0,1,20,4A-16,16,0,0,1,${x(16,maxTheta)},${y(16,maxTheta)}`, {
       classes: 'fl-reactive-grip-dial__guide-ring',
@@ -115,7 +202,7 @@ export default class FLReactiveGripDial extends KnobInput {
       stroke: '#23292d',
       strokeWidth: 0.5,
     });
-    const indicatorDot = createCircle(x(10.5,minTheta), y(10.5,minTheta), 1, {
+    const indicatorDot = createCircle(x(10.5,0), y(10.5,0), 1, {
       classes: 'fl-reactive-grip-dial__indicator-dot',
       fill: indicatorDotColor,
     });
@@ -202,11 +289,32 @@ export default class FLReactiveGripDial extends KnobInput {
     return svg;
   }
 
-  // TODO: morph shape on hover
+  morphGripShape(progress) {
+    const evenSpacing = (Math.PI/this.gripBumps);
+    const arcSpan = (2-progress) * evenSpacing;
+    const bumpSpan = progress * evenSpacing;
+    const bumpRadius = 13 / (18 * this.gripExtrusion + 1) * this.gripBumps;
 
-  static _getVisualSetupFunction(minRotation, maxRotation, gripBumps, gripExtrusion) {
+    // write path data
+    var gripPathData = `M${x(13,-arcSpan/2)},${y(13,-arcSpan/2)}`;
+    var numBumps = 5
+    for(var i=0; i<this.gripBumps; i++) {
+      const arcAfter = (i*2)*evenSpacing + (arcSpan/2);
+      const bumpAfter = (i*2+1)*evenSpacing + (bumpSpan/2);
+      gripPathData += `A-13,13,0,0,1,${x(13,arcAfter)},${y(13,arcAfter)}`;
+      gripPathData += `A-${bumpRadius},${bumpRadius},0,0,0,${x(13,bumpAfter)},${y(13,bumpAfter)}`;
+    }
+    gripPathData += 'Z';
+
+    // update shapes
+    this._visualContext.gripMask.setAttribute('d', gripPathData);
+    this._visualContext.gripOutline.setAttribute('d', gripPathData);
+  }
+
+  static _getVisualSetupFunction(minRotation, maxRotation) {
     return function() {
       this.rotationDelta = maxRotation - minRotation;
+      this.minRotation = minRotation;
 
       this.gripMask = this.element.querySelector('.fl-reactive-grip-dial__grip-mask-path');
       this.gripMask.style[`${this.transformProperty}Origin`] = '20px 20px';
@@ -219,9 +327,10 @@ export default class FLReactiveGripDial extends KnobInput {
 
   static _getVisualUpdateFunction() {
     return function(norm) {
-      this.gripMask.style[this.transformProperty] = `rotate(${norm*this.rotationDelta}deg)`;
-      this.gripOutline.style[this.transformProperty] = `rotate(${norm*this.rotationDelta}deg)`;
-      this.indicatorDot.style[this.transformProperty] = `rotate(${norm*this.rotationDelta}deg)`;
+      const newRotation = this.minRotation + norm*this.rotationDelta;
+      this.gripMask.style[this.transformProperty] = `rotate(${newRotation}deg)`;
+      this.gripOutline.style[this.transformProperty] = `rotate(${newRotation}deg)`;
+      this.indicatorDot.style[this.transformProperty] = `rotate(${newRotation}deg)`;
     };
   }
 }
