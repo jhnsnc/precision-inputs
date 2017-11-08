@@ -4,12 +4,14 @@
   box-sizing: border-box;
   user-select: none;
 }
-html, body {
+html {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
 }
 body {
   display: flex;
+  width: 100%;
+  min-height: 100%;
   flex-flow: row wrap;
   justify-content: space-around;
   align-content: space-around;
