@@ -6,6 +6,7 @@ import {
   defineBlurFilter,
   defineDarkenFilter,
   defineMask,
+  defineDropshadowFilter,
   createGroup,
   createRectangle,
   createCircle,
@@ -128,6 +129,7 @@ export default class FLReactiveGripDial extends KnobInput {
 
     // start tween
     this.morphGripShape(1.0);
+    // TODO: actually tween
   }
 
   stopHoverEffect() {
@@ -145,6 +147,7 @@ export default class FLReactiveGripDial extends KnobInput {
 
     // end tween
     this.morphGripShape(0.0);
+    // TODO: actually tween
   }
 
   static _constructVisualElement(indicatorDotColor, guideTicks, minRotation, maxRotation) {
@@ -187,7 +190,10 @@ export default class FLReactiveGripDial extends KnobInput {
     guideTickMarks.forEach(el => guides.appendChild(el));
 
     // dial grip
-    const grip = createGroup({ classes: 'fl-reactive-grip-dial__grip' });
+    const grip = createGroup({
+      classes: 'fl-reactive-grip-dial__grip',
+      filter: defineDropshadowFilter('filter__fl-reactive-grip-dial__drop-shadow', 0x23292d, 0.3, 0, 2, 0.3),
+    });
     const gripFill = createRectangle(6, 6, 28, 28, {
       classes: 'fl-reactive-grip-dial__grip-fill',
       fill: defineSvgGradient('grad__fl-reactive-grip-dial__grip-fill', 'radial', {cx: 0.5, cy: -0.2, r: 1.2, fx: 0.5, fy: -0.2}, {
