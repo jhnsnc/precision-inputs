@@ -1,6 +1,6 @@
-# `FLStandardKnob`
+# `FLReactiveGripDial`
 
-The `FLStandardKnob` class accepts an empty div and creates a knob input styled to look like a standard knob from FL Studio.
+The `FLReactiveGripDial` class accepts an empty div and creates a dial input styled with a ridged "metal" top and grip bumps that appear on interaction. This component is well-suited for larger, more prominent UI controls.
 
 ## Basic Usage
 
@@ -20,7 +20,7 @@ The `FLStandardKnob` class accepts an empty div and creates a knob input styled 
 
 ```js
 var myKnobContainer = document.querySelector('.my-fl-knob');
-var myKnob = new FLStandardKnob(myKnobContainer);
+var myKnob = new FLReactiveGripDial(myKnobContainer);
 ```
 
 4. **Access the value when needed via JS:**
@@ -44,6 +44,9 @@ Below are the options available in addition to the base [`KnobInput` options](ht
 
 | `options` property | default value | description |
 |--------------------|---------------|-------------|
-| `color`            | `'#ffa830'` | The color to use for the indicator ring fill, focus indicator, and indicator dot (if present). |
-| `indicatorDot`     | `true` | Whether the knob should display an indicator dot for making it easier to read the current value. |
-| `ringType`         | `'positive'` | The fill style for the indicator ring. <br/>`'positive'` - color fills in from the left as value increases <br/>`'negative'` - color fills in from the right as value decreases <br/>`'split'` - color fills left/right from middle as value increases/decreases relative to the middle value (half-way between `min` and `max`) |
+| `color`            | `'#ffa830'` | The color to use for the focus indicator and indicator dot. |
+| `guideTicks`       | `9` | The number of tick marks on the outer guide ring. |
+| `gripBumps`        | `5` | The number of grip bumps that appear when interacting with the dial. |
+| `gripExtrusion`    | `0.5` | The degree to which the grips "cut" into the dial when the user interacts with it. Range: (0.0, 1.0) |
+| `minRotation`      | angle pointing towards the first guide tick | The angle (in degrees) of rotation corresponding to the `min` value, relative to pointing straight down. |
+| `maxRotation`      | angle pointing towards the last guide tick | The angle (in degrees) of rotation corresponding to the `max` value, relative to pointing straight down. |

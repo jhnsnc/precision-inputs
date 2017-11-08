@@ -19,6 +19,7 @@ See [the documentation table-of-contents](https://github.com/jhnsnc/precision-in
     - ✔ `KnobInput` - fully customizable, bare-bones base component
   - FL Controls
     - ✔ `FLStandardKnob` - easy-to-use base knob component
+    - ✔ `FLReactiveGripDial` - detailed dial with "grip" bumps, good for larger controls
     - ❌ numerical range input (e.g. channel selector)
     - ❌ customizable-range knob (e.g. flexible fine-tune knob)
     - ❌ X-Y controller
