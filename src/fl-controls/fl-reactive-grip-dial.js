@@ -19,9 +19,13 @@ import colors from './fl-colors';
 import KnobInput from '../base/knob-input';
 
 // TODO: remove unused
-const sineIn = n => -Math.cos(n*Math.PI/2) + 1;
-const sineOut = n => Math.sin(n*Math.PI/2);
-const sineInOut = n => (-Math.cos(n*Math.PI) + 1) / 2;
+const easeInSine = n => -Math.cos(n*Math.PI/2) + 1;
+const easeOutSine = n => Math.sin(n*Math.PI/2);
+const easeInOutSine = n => (-Math.cos(n*Math.PI) + 1) / 2;
+const easeInQuad = n => n * n;
+const easeOutQuad = n => Math.sqrt(n);
+const easeInCubic = n => n * n * n;
+const easeOutCubic = n => ((n-=1)*n*n) + 1;
 
 let instanceCount = 0;
 
@@ -67,16 +71,17 @@ export default class FLReactiveGripDial extends KnobInput {
     // morph grip dial shape on hover
     this.gripBumps = gripBumps;
     this.gripExtrusion = gripExtrusion;
-    this.activeMorph = {
-      id: null, // RAF ID
-      progress: 0.0,
-      startTime: 0,
-      targetTime: 0,
-      direction: 1,
-    };
     this.mouseX = 0;
     this.mouseY = 0;
-
+    this.color = indicatorDotColor;
+    this.hoverTween = {
+      rafId: null,
+      direction: 1,
+      progress: 0.0,
+      startTime: 0,
+      duration: 600,
+    };
+    // handlers
     this._reactiveDialHandlers = {
       hover: this.handleHover.bind(this),
       move: this.handleMove.bind(this),
@@ -84,7 +89,6 @@ export default class FLReactiveGripDial extends KnobInput {
       dragStart: this.handleDragStart.bind(this),
       dragEnd: this.handleDragEnd.bind(this),
     };
-
     this.addEventListener('mouseover', this._reactiveDialHandlers.hover);
     this.addEventListener('knobdragstart', this._reactiveDialHandlers.dragStart);
   }
@@ -126,10 +130,16 @@ export default class FLReactiveGripDial extends KnobInput {
     document.body.addEventListener('mousemove', this._reactiveDialHandlers.move);
     this.addEventListener('mouseout', this._reactiveDialHandlers.unhover);
     this.addEventListener('knobdragend', this._reactiveDialHandlers.dragEnd);
-
     // start tween
-    this.morphGripShape(1.0);
-    // TODO: actually tween
+    if (this.hoverTween.rafId) { // cancel if existing
+      window.cancelAnimationFrame(this.hoverTween.rafId);
+    }
+    this.hoverTween = {
+      rafId: window.requestAnimationFrame(this.tickHoverTween.bind(this)),
+      direction: 1,
+      duration: 300,
+      startProgress: this.hoverTween.progress,
+    };
   }
 
   stopHoverEffect() {
@@ -146,8 +156,74 @@ export default class FLReactiveGripDial extends KnobInput {
     this.removeEventListener('knobdragend', this._reactiveDialHandlers.dragEnd);
 
     // end tween
-    this.morphGripShape(0.0);
-    // TODO: actually tween
+    if (this.hoverTween.rafId) { // cancel if existing
+      window.cancelAnimationFrame(this.hoverTween.rafId);
+    }
+    this.hoverTween = {
+      rafId: window.requestAnimationFrame(this.tickHoverTween.bind(this)),
+      direction: -1,
+      duration: 600,
+      startProgress: this.hoverTween.progress,
+    };
+  }
+
+  tickHoverTween(currentTime) {
+    if (!this.hoverTween.startTime) {
+      this.hoverTween.startTime = currentTime;
+    }
+    this.hoverTween.progress = (currentTime - this.hoverTween.startTime) / this.hoverTween.duration;
+
+    if (this.hoverTween.direction > 0) {
+      // advance towards 1.0
+      this.hoverTween.progress *= 1 - this.hoverTween.startProgress;
+      this.hoverTween.progress += this.hoverTween.startProgress;
+      if (this.hoverTween.progress < 1.0) {
+        // continue
+        this.morphGripShape( easeOutQuad(this.hoverTween.progress) );
+        this.hoverTween.rafId = window.requestAnimationFrame(this.tickHoverTween.bind(this));
+      } else {
+        // done
+        this.hoverTween.progress = 1.0;
+        this.morphGripShape( 1.0 );
+        this.hoverTween.rafId = null;
+      }
+    } else {
+      // revert towards 0.0
+      this.hoverTween.progress *= this.hoverTween.startProgress;
+      this.hoverTween.progress = this.hoverTween.startProgress - this.hoverTween.progress;
+      if (this.hoverTween.progress > 0.0) {
+        // continue
+        this.morphGripShape( easeInQuad(this.hoverTween.progress) );
+        this.hoverTween.rafId = window.requestAnimationFrame(this.tickHoverTween.bind(this));
+      } else {
+        // done
+        this.hoverTween.progress = 0.0;
+        this.morphGripShape( 0.0 );
+        this.hoverTween.rafId = null;
+      }
+    }
+  }
+
+  morphGripShape(progress) {
+    const evenSpacing = (Math.PI/this.gripBumps);
+    const arcSpan = (2-progress) * evenSpacing;
+    const bumpSpan = progress * evenSpacing;
+    const bumpRadius = 13 / (18 * this.gripExtrusion + 1) * this.gripBumps;
+
+    // write path data
+    var gripPathData = `M${x(13,-arcSpan/2)},${y(13,-arcSpan/2)}`;
+    var numBumps = 5
+    for(var i=0; i<this.gripBumps; i++) {
+      const arcAfter = (i*2)*evenSpacing + (arcSpan/2);
+      const bumpAfter = (i*2+1)*evenSpacing + (bumpSpan/2);
+      gripPathData += `A-13,13,0,0,1,${x(13,arcAfter)},${y(13,arcAfter)}`;
+      gripPathData += `A-${bumpRadius},${bumpRadius},0,0,0,${x(13,bumpAfter)},${y(13,bumpAfter)}`;
+    }
+    gripPathData += 'Z';
+
+    // update shapes
+    this._visualContext.gripMask.setAttribute('d', gripPathData);
+    this._visualContext.gripOutline.setAttribute('d', gripPathData);
   }
 
   static _constructVisualElement(indicatorDotColor, guideTicks, minRotation, maxRotation) {
@@ -172,6 +248,13 @@ export default class FLReactiveGripDial extends KnobInput {
     const maxTheta = maxRotation * Math.PI / 180;
     const thetaDelta = maxTheta - minTheta;
     const guides = createGroup({ classes: 'fl-reactive-grip-dial__guides' });
+    const focusIndicator = createPath(`M${x(16,minTheta)},${y(16,minTheta)}A16,16,0,0,1,20,4A-16,16,0,0,1,${x(16,maxTheta)},${y(16,maxTheta)}`, {
+      classes: 'fl-reactive-grip-dial__focus-indicator',
+      stroke: indicatorDotColor,
+      strokeWidth: 3,
+      strokeLinecap: 'round',
+      filter: defineBlurFilter('filter__fl-reactive-grip-dial__blur-focus-indicator', 1.5, 'none', 0.2),
+    });
     const guideRing = createPath(`M${x(16,minTheta)},${y(16,minTheta)}A16,16,0,0,1,20,4A-16,16,0,0,1,${x(16,maxTheta)},${y(16,maxTheta)}`, {
       classes: 'fl-reactive-grip-dial__guide-ring',
       stroke: '#32383c',
@@ -186,6 +269,7 @@ export default class FLReactiveGripDial extends KnobInput {
         stroke: '#23292d',
       }) );
     }
+    guides.appendChild(focusIndicator);
     guides.appendChild(guideRing);
     guideTickMarks.forEach(el => guides.appendChild(el));
 
@@ -293,28 +377,6 @@ export default class FLReactiveGripDial extends KnobInput {
     svg.appendChild(chrome);
 
     return svg;
-  }
-
-  morphGripShape(progress) {
-    const evenSpacing = (Math.PI/this.gripBumps);
-    const arcSpan = (2-progress) * evenSpacing;
-    const bumpSpan = progress * evenSpacing;
-    const bumpRadius = 13 / (18 * this.gripExtrusion + 1) * this.gripBumps;
-
-    // write path data
-    var gripPathData = `M${x(13,-arcSpan/2)},${y(13,-arcSpan/2)}`;
-    var numBumps = 5
-    for(var i=0; i<this.gripBumps; i++) {
-      const arcAfter = (i*2)*evenSpacing + (arcSpan/2);
-      const bumpAfter = (i*2+1)*evenSpacing + (bumpSpan/2);
-      gripPathData += `A-13,13,0,0,1,${x(13,arcAfter)},${y(13,arcAfter)}`;
-      gripPathData += `A-${bumpRadius},${bumpRadius},0,0,0,${x(13,bumpAfter)},${y(13,bumpAfter)}`;
-    }
-    gripPathData += 'Z';
-
-    // update shapes
-    this._visualContext.gripMask.setAttribute('d', gripPathData);
-    this._visualContext.gripOutline.setAttribute('d', gripPathData);
   }
 
   static _getVisualSetupFunction(minRotation, maxRotation) {
