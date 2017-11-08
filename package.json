@@ -1,6 +1,6 @@
 {
   "name": "precision-inputs",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Framework-agnostic input components for precision controls (knobs, dials, sliders, etc). Highly customizable, portable, and accessible.",
   "author": "Chris Johnson",
   "license": "MIT",
@@ -12,6 +12,7 @@
     "component",
     "components",
     "controls",
+    "svg",
     "javascript",
     "js",
     "html",
