@@ -18,23 +18,17 @@ import colors from './fl-colors';
 
 import KnobInput from '../base/knob-input';
 
-// TODO: remove unused
+let instanceCount = 0;
+
 const easeInSine = n => -Math.cos(n*Math.PI/2) + 1;
 const easeOutSine = n => Math.sin(n*Math.PI/2);
-const easeInOutSine = n => (-Math.cos(n*Math.PI) + 1) / 2;
-const easeInQuad = n => n * n;
-const easeOutQuad = n => Math.sqrt(n);
-const easeInCubic = n => n * n * n;
-const easeOutCubic = n => ((n-=1)*n*n) + 1;
-
-let instanceCount = 0;
 
 const thetaOffset = Math.PI/2;
 const x = (r, theta) => 20 + r*Math.cos(thetaOffset + theta);
 const y = (r, theta) => 20 + r*Math.sin(thetaOffset + theta);
 
 // options:
-//   - indicatorDotColor (string, hexcolor) - 'transparent' to disable (default = FL default color)
+//   - color (string, hexcolor) - 'transparent' to disable (default = FL default color)
 //   - guideTicks (int) - number of tick marks on the outer guide ring (default = 9)
 //   - gripBumps (int) - number of grip bumps that appear when interacting with the dial (default = 5)
 //   - gripExtrusion (Number) - the degree to which the grips 'cut' into the dial when the user interacts with it, range (0.0, 1.0) (default = 0.5)
@@ -48,7 +42,7 @@ export default class FLReactiveGripDial extends KnobInput {
     }
 
     // options
-    const indicatorDotColor = typeof options.indicatorDotColor !== 'undefined' ? options.indicatorDotColor : colors.default.str;
+    const color = typeof options.color !== 'undefined' ? options.color : colors.default.str;
     const guideTicks = typeof options.guideTicks === 'number' ? options.guideTicks : 9;
     const gripBumps = typeof options.gripBumps === 'number' ? options.gripBumps : 5;
     const gripExtrusion = typeof options.gripExtrusion === 'number' ? options.gripExtrusion : 0.5;
@@ -56,7 +50,7 @@ export default class FLReactiveGripDial extends KnobInput {
     const maxRotation = typeof options.maxRotation === 'number' ? options.maxRotation : (1-(0.5/guideTicks)) * 360;
 
     // construct visual element and attach to DOM
-    const visualElement = FLReactiveGripDial._constructVisualElement(indicatorDotColor, guideTicks, minRotation, maxRotation);
+    const visualElement = FLReactiveGripDial._constructVisualElement(color, guideTicks, minRotation, maxRotation);
 
     // create visual update functions
     options.visualContext = FLReactiveGripDial._getVisualSetupFunction(minRotation, maxRotation);
@@ -73,7 +67,6 @@ export default class FLReactiveGripDial extends KnobInput {
     this.gripExtrusion = gripExtrusion;
     this.mouseX = 0;
     this.mouseY = 0;
-    this.color = indicatorDotColor;
     this.hoverTween = {
       rafId: null,
       direction: 1,
@@ -179,7 +172,7 @@ export default class FLReactiveGripDial extends KnobInput {
       this.hoverTween.progress += this.hoverTween.startProgress;
       if (this.hoverTween.progress < 1.0) {
         // continue
-        this.morphGripShape( easeOutQuad(this.hoverTween.progress) );
+        this.morphGripShape( easeOutSine(this.hoverTween.progress) );
         this.hoverTween.rafId = window.requestAnimationFrame(this.tickHoverTween.bind(this));
       } else {
         // done
@@ -193,7 +186,7 @@ export default class FLReactiveGripDial extends KnobInput {
       this.hoverTween.progress = this.hoverTween.startProgress - this.hoverTween.progress;
       if (this.hoverTween.progress > 0.0) {
         // continue
-        this.morphGripShape( easeInQuad(this.hoverTween.progress) );
+        this.morphGripShape( easeInSine(this.hoverTween.progress) );
         this.hoverTween.rafId = window.requestAnimationFrame(this.tickHoverTween.bind(this));
       } else {
         // done
@@ -226,7 +219,7 @@ export default class FLReactiveGripDial extends KnobInput {
     this._visualContext.gripOutline.setAttribute('d', gripPathData);
   }
 
-  static _constructVisualElement(indicatorDotColor, guideTicks, minRotation, maxRotation) {
+  static _constructVisualElement(color, guideTicks, minRotation, maxRotation) {
     const svg = document.createElementNS(svgNS, 'svg');
     svg.classList.add('fl-reactive-grip-dial__svg');
     svg.setAttribute('viewBox', '0 0 40 40');
@@ -250,7 +243,7 @@ export default class FLReactiveGripDial extends KnobInput {
     const guides = createGroup({ classes: 'fl-reactive-grip-dial__guides' });
     const focusIndicator = createPath(`M${x(16,minTheta)},${y(16,minTheta)}A16,16,0,0,1,20,4A-16,16,0,0,1,${x(16,maxTheta)},${y(16,maxTheta)}`, {
       classes: 'fl-reactive-grip-dial__focus-indicator',
-      stroke: indicatorDotColor,
+      stroke: color,
       strokeWidth: 3,
       strokeLinecap: 'round',
       filter: defineBlurFilter('filter__fl-reactive-grip-dial__blur-focus-indicator', 1.5, 'none', 0.2),
@@ -294,7 +287,7 @@ export default class FLReactiveGripDial extends KnobInput {
     });
     const indicatorDot = createCircle(x(10.5,0), y(10.5,0), 1, {
       classes: 'fl-reactive-grip-dial__indicator-dot',
-      fill: indicatorDotColor,
+      fill: color,
     });
     grip.appendChild(gripFill);
     grip.appendChild(gripOutline);
