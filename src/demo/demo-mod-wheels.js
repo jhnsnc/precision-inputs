@@ -6,17 +6,17 @@ import FLColors from '../fl-controls/fl-colors';
 
 export default function setupModWheels() {
   const envDial = new FLReactiveGripDial(document.querySelector('.mod-wheels .mod-wheels__knob.env'), {
-    indicatorDotColor: FLColors.volume.str,
     color: FLColors.volume.str,
+    guideTicks: 7,
+    gripBumps: 3,
+    gripExtrusion: 0.1,
   });
 
   const cutDial = new FLReactiveGripDial(document.querySelector('.mod-wheels .mod-wheels__knob.cut'), {
-    indicatorDotColor: FLColors.modX.str,
     color: FLColors.modX.str,
   });
 
   const resDial = new FLReactiveGripDial(document.querySelector('.mod-wheels .mod-wheels__knob.res'), {
-    indicatorDotColor: FLColors.modY.str,
     color: FLColors.modY.str,
   });
 }

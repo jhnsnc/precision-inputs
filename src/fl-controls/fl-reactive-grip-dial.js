@@ -32,8 +32,8 @@ const y = (r, theta) => 20 + r*Math.sin(thetaOffset + theta);
 //   - guideTicks (int) - number of tick marks on the outer guide ring (default = 9)
 //   - gripBumps (int) - number of grip bumps that appear when interacting with the dial (default = 5)
 //   - gripExtrusion (Number) - the degree to which the grips 'cut' into the dial when the user interacts with it, range (0.0, 1.0) (default = 0.5)
-//   - minRotation (Number) - angle of rotation corresponding to the `min` value, relative to pointing straight down (default = pointing to the first notch)
-//   - maxRotation (Number) - angle of rotation corresponding to the `max` value, relative to pointing straight down (default = pointing to the last notch)
+//   - minRotation (Number) - angle of rotation corresponding to the `min` value, relative to pointing straight down (default = pointing to the first guide tick mark)
+//   - maxRotation (Number) - angle of rotation corresponding to the `max` value, relative to pointing straight down (default = pointing to the last guide tick mark)
 export default class FLReactiveGripDial extends KnobInput {
   constructor(containerElement, options = {}) {
     // make sure containerElement is valid
