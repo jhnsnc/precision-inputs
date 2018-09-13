@@ -15,7 +15,7 @@ export default function setupFLEnvelope() {
   // Setup Knobs - Envelope
 
   var envelopeKnobStartPositions = [0, 40, 75, 85, 20, 55];
-  var envelopeKnobs = [...visualizer.querySelectorAll('.fl-demo-knob.envelope-knob')];
+  var envelopeKnobs = Array.prototype.slice.apply(visualizer.querySelectorAll('.fl-demo-knob.envelope-knob'));
   var envelopeKnobs = envelopeKnobs.map((el, idx) => new FLStandardKnob(el, {
     min: 0,
     max: 100,
@@ -25,7 +25,7 @@ export default function setupFLEnvelope() {
   // Setup Knobs - Tension
 
   var tensionKnobStartPositions = [0, 0, -80];
-  var tensionKnobs = [...visualizer.querySelectorAll('.fl-demo-knob.tension-knob')];
+  var tensionKnobs = Array.prototype.slice.apply(visualizer.querySelectorAll('.fl-demo-knob.tension-knob'));
   var tensionKnobs = tensionKnobs.map((el, idx) => new FLStandardKnob(el, {
     indicatorDot: false,
     indicatorRingType: 'split',

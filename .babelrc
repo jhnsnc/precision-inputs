@@ -9,7 +9,5 @@
       }
     ]
   ],
-  "plugins": [
-    "transform-object-rest-spread"
-  ]
+  "plugins": []
 }

@@ -7,9 +7,8 @@ import FLReactiveGripDial from './fl-reactive-grip-dial';
 
 import colors from './fl-colors';
 
-export default {
+export default Object.assign({
   FLStandardKnob,
   FLReactiveGripDial,
-  colors,
-  ...base
-};
+  colors
+}, base);
