@@ -22,6 +22,11 @@ export default class KnobInput {
     var min = typeof options.min === 'number' ? options.min : 0;
     var max = typeof options.max === 'number' ? options.max : 1;
     this.initial = typeof options.initial === 'number' ? options.initial : 0.5 * (min + max);
+    this.smoothingThreshold = typeof options.smoothingThreshold === 'number' ? options.smoothingThreshold : 10;
+    this.smoothingThreshold /= 100;
+    this.smoothingThreshold *= max-min;
+    this.smoothingFactor = typeof options.smoothingFactor === 'number' ? options.smoothingFactor : 4;
+    this.smoothing = typeof options.smoothing === 'boolean' ? options.smoothing : true;
     this.dragResistance = typeof options.dragResistance === 'number' ? options.dragResistance : 100;
     this.dragResistance *= 3;
     this.dragResistance /= max-min;
@@ -30,6 +35,8 @@ export default class KnobInput {
     this.wheelResistance /= max-min;
     this.setupVisualContext = typeof options.visualContext === 'function' ? options.visualContext : KnobInput.setupRotationContext(0, 360);
     this.updateVisuals = typeof options.updateVisuals === 'function' ? options.updateVisuals : KnobInput.rotationUpdateFunction;
+
+    this.dragMode = typeof options.dragMode !== 'undefined' ? options.dragMode : 'vertical';
 
     // setup input
     var rangeInput = document.createElement('input');
@@ -58,6 +65,7 @@ export default class KnobInput {
 
     // internals
     this._activeDrag = false;
+    this._center;
 
     // define event listeners
     // have to store bound versions of handlers so they can be removed later
@@ -85,6 +93,14 @@ export default class KnobInput {
     this._input.addEventListener('blur', this._handlers.blur);
     // set initial value
     this.updateToInputValue();
+
+    //run this function after rendering has finished
+    setTimeout(this.runAfterRender.bind(this), 0);
+  }
+
+  //set centerpoint after rendering has finished
+  runAfterRender(){
+    this._center = this.findCenter(this._container)
   }
 
   static setupRotationContext(minRotation, maxRotation) {
@@ -110,7 +126,7 @@ export default class KnobInput {
     evt.preventDefault();
     var touch = evt.changedTouches.item(evt.changedTouches.length - 1);
     this._activeDrag = touch.identifier;
-    this.startDrag(touch.clientY);
+    this.startDrag([touch.clientX, touch.clientY]);
     // drag update/end listeners
     document.body.addEventListener('touchmove', this._handlers.touchMove);
     document.body.addEventListener('touchend', this._handlers.touchEnd);
@@ -121,7 +137,7 @@ export default class KnobInput {
     // console.log('touch move');
     var activeTouch = this.findActiveTouch(evt.changedTouches);
     if (activeTouch) {
-      this.updateDrag(activeTouch.clientY);
+      this.updateDrag([activeTouch.clientX, activeTouch.clientY]);
     } else if (!this.findActiveTouch(evt.touches)) {
       this.clearDrag();
     }
@@ -131,7 +147,7 @@ export default class KnobInput {
     // console.log('touch end');
     var activeTouch = this.findActiveTouch(evt.changedTouches);
     if (activeTouch) {
-      this.finalizeDrag(activeTouch.clientY);
+      this.finalizeDrag([activeTouch.clientX, activeTouch.clientY]);
     }
   }
 
@@ -147,7 +163,7 @@ export default class KnobInput {
     this.clearDrag();
     evt.preventDefault();
     this._activeDrag = true;
-    this.startDrag(evt.clientY);
+    this.startDrag([evt.clientX, evt.clientY]);
     // drag update/end listeners
     document.body.addEventListener('mousemove', this._handlers.mouseMove);
     document.body.addEventListener('mouseup', this._handlers.mouseUp);
@@ -156,15 +172,15 @@ export default class KnobInput {
   handleMouseMove(evt) {
     // console.log('mouse move');
     if (evt.buttons&1) {
-      this.updateDrag(evt.clientY);
+      this.updateDrag([evt.clientX, evt.clientY]);
     } else {
-      this.finalizeDrag(evt.clientY);
+      this.finalizeDrag([evt.clientX, evt.clientY]);
     }
   }
 
   handleMouseUp(evt) {
     // console.log('mouse up');
-    this.finalizeDrag(evt.clientY);
+    this.finalizeDrag([evt.clientX, evt.clientY]);
   }
 
   handleMouseWheel(evt) {
@@ -194,25 +210,50 @@ export default class KnobInput {
   }
 
   // dragging
-  startDrag(yPosition) {
-    this._dragStartPosition = yPosition;
+  startDrag(pos) {
+    this._dragStartPosition = pos;
     this._prevValue = parseFloat(this._input.value);
 
     this._input.focus();
     document.body.classList.add('knob-input__drag-active');
     this._container.classList.add('drag-active');
+
     this._input.dispatchEvent(new InputEvent('knobdragstart'));
   }
 
-  updateDrag(yPosition) {
-    var diff = yPosition - this._dragStartPosition;
-    this.updateFromDrag(diff, this.dragResistance);
+  updateDrag(pos) {
+    switch(this.dragMode){
+      case 'angular':
+        this.updateFromNormalizedValue(this.bearing(pos));
+        break;
+      case 'horizontal':
+        var diff = this._dragStartPosition[0] - pos[0];
+        this.updateFromDrag(diff, this.dragResistance);
+        break;
+      case 'vertical':
+      default:
+        var diff = pos[1] - this._dragStartPosition[1];
+        this.updateFromDrag(diff, this.dragResistance);
+        break;
+    }
     this._input.dispatchEvent(new InputEvent('change'));
   }
 
-  finalizeDrag(yPosition) {
-    var diff = yPosition - this._dragStartPosition;
-    this.updateFromDrag(diff, this.dragResistance);
+  finalizeDrag(pos) {
+    switch(this.dragMode){
+      case 'angular':
+        break;
+      case 'horizontal':
+        var diff = this._dragStartPosition[0] - pos[0];
+        this.updateFromDrag(diff, this.dragResistance);
+        break;
+      case 'vertical':
+      default:
+        var diff = pos[1] - this._dragStartPosition[1];
+        this.updateFromDrag(diff, this.dragResistance);
+        break;
+    }
+    
     this.clearDrag();
     this._input.dispatchEvent(new InputEvent('change'));
     this._input.dispatchEvent(new InputEvent('knobdragend'));
@@ -242,7 +283,34 @@ export default class KnobInput {
     this.updateVisuals(this.normalizeValue(newVal), newVal);
   }
 
+  smooth(expandedValue){
+    if((this._prevValue - expandedValue) > this.smoothingThreshold ||
+       (this._prevValue - expandedValue) < (this.smoothingThreshold * -1)){
+      var diff = (expandedValue - this._prevValue);
+      expandedValue = this._prevValue + diff/this.smoothingFactor;
+      this._prevValue = expandedValue;
+    }
+    return expandedValue;
+  }
+
+  updateFromNormalizedValue(normalizedValue){
+    var expandedValue = this.expandNormalizedValue(normalizedValue);
+    if(this.smoothing){
+      expandedValue = this.smooth(expandedValue);
+      normalizedValue = this.normalizeValue(expandedValue);
+    }
+
+    this._input.value = expandedValue;
+    this.updateVisuals(normalizedValue, expandedValue);
+  }
+
   // utils
+  expandNormalizedValue(val){
+    var min = parseFloat(this._input.min);
+    var max = parseFloat(this._input.max);
+    return Math.min(val * (max-min), max);
+  }
+
   clampValue(val) {
     var min = parseFloat(this._input.min);
     var max = parseFloat(this._input.max);
@@ -261,6 +329,37 @@ export default class KnobInput {
       if (this._activeDrag === touchList.item(i).identifier)
         return touchList.item(i);
     return null;
+  }
+
+  findCenter(obj){
+    var left = obj.offsetLeft;
+    var top = obj.offsetTop;
+    var height = obj.offsetHeight;
+    var width = obj.offsetWidth;
+    while (obj = obj.offsetParent){
+      left += obj.offsetLeft;
+      top += obj.offsetTop;
+    }
+    return [left + Math.floor(width/2), top + Math.floor(height/2)]
+  }
+
+  bearing(pos){
+    var TWOPI = 6.2831853071795865;
+
+    //This constant is used to convert radians into css turns
+    //1 Turn = 2pi rad = 360 deg
+    //Turns have the huge advantage that the value is already normalized
+    var RAD2TURN = 0.159154943091895;
+    
+    var deltaX = pos[0] - this._center[0];
+    var deltaY = pos[1] - this._center[1];
+    
+    var theta = Math.atan2(-deltaX, deltaY);
+
+    if (theta < 0.0)
+      theta += TWOPI;
+
+    return theta * RAD2TURN;
   }
 
   // public passthrough methods

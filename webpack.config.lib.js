@@ -37,7 +37,7 @@ module.exports = function(env) {
     },
     output: outputTarget,
     module: {
-      loaders: [
+      rules: [
         // JS
         {
           test: /\.js$/,
@@ -54,9 +54,7 @@ module.exports = function(env) {
           use: extractSass.extract({
             use: [{
               loader: 'css-loader',
-              options: {
-                minimize: true,
-              }
+              
             }, {
               loader: 'postcss-loader'
             }, {
