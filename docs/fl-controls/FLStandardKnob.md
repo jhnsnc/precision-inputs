@@ -4,9 +4,7 @@ The `FLStandardKnob` class accepts an empty div and creates a knob input styled 
 
 ## Basic Usage
 
-1. **Include styles from `css/precision-inputs.fl-controls.css` and script from `scripts/precision-inputs.fl-controls.js`**
-
-> If you are using CommonJS or UMD modules for your front-end, you can instead use the script in `common/` and `umd/` respectively.
+1. **Include styles from `dist/precision-inputs.css` and script from `dist/precision-inputs.js`**
 
 2. **Create an empty container element:**
 
@@ -19,22 +17,23 @@ The `FLStandardKnob` class accepts an empty div and creates a knob input styled 
 3. **Initialize the component in your JS:**
 
 ```js
-var myKnobContainer = document.querySelector('.my-fl-knob');
-var myKnob = new FLStandardKnob(myKnobContainer);
+const myKnobContainer = document.querySelector('.my-fl-knob');
+const myKnob = new FLStandardKnob(myKnobContainer);
 ```
 
 4. **Access the value when needed via JS:**
 
 ```js
 // retrieve value
-var currentValue = myKnob.value;
+let currentValue = myKnob.value;
 
 // set value
 myKnobInput.value = 0.5;
 
 // watch for changes
 myKnobInput.addEventListener('change', function(evt) {
-  console.log(evt.target.value);
+  currentValue = evt.target.value;
+  console.log(currentValue);
 });
 ```
 

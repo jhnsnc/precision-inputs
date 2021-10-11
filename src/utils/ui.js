@@ -1,27 +1,15 @@
 function getSupportedPropertyName(properties) {
-  for (var i = 0; i < properties.length; i++)
+  for (let i = 0; i < properties.length; i += 1)
     if (typeof document.body.style[properties[i]] !== 'undefined')
       return properties[i];
   return null;
 }
 
-export function getTransformProperty() {
-  return getSupportedPropertyName([
+export const getTransformProperty = () => getSupportedPropertyName([
     'transform', 'msTransform', 'webkitTransform', 'mozTransform', 'oTransform'
   ]);
-}
 
-export function debounce(func, wait, immediate) {
-  var timeout;
-  return function() {
-    var context = this, args = arguments;
-    var later = function() {
-      timeout = null;
-      if (!immediate) func.apply(context, args);
-    };
-    var callNow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-    if (callNow) func.apply(context, args);
-  };
-};
+export const isHtmlElement = el => (
+  typeof HTMLElement === 'object' ? el instanceof HTMLElement :
+  typeof el === 'object' && el !== null && el.nodeType === 1 && typeof el.nodeName === 'string'
+);

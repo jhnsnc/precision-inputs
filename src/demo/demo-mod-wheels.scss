@@ -1,6 +1,9 @@
+@use './demo.scss';
+
 $mod-wheel-size: 150px;
 
 .mod-wheels {
+  @include demo.demoPanel;
   width: 600px;
   height: 250px;
   padding: 30px;

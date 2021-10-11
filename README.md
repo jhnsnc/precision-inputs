@@ -1,7 +1,5 @@
 # Precision Inputs
 
-> ⚠️ **Note:** This library is in **alpha**. The names and functionality of all classes, properties, and methods are subject to change without notice until the full v1.0 release. See [issues](https://github.com/jhnsnc/precision-inputs/issues/) for discussion of changes.
-
 These components can be styled to fit in perfectly in any app, and allow users to set precise values through many input modalities. Users can touch-and-drag, click-and-drag, scroll their mouse wheel, double click, or use keyboard input. After instantiation you can use the components just like you would any normal input.
 
 Please report any issues you discover [on Github](https://github.com/jhnsnc/precision-inputs/issues).
@@ -26,33 +24,25 @@ See [the documentation table-of-contents](https://github.com/jhnsnc/precision-in
     - ✔ `FLReactiveGripDial` - detailed dial with "grip" bumps, good for larger controls
     - ❌ numerical range input (e.g. channel selector)
     - ❌ customizable-range knob (e.g. flexible fine-tune knob)
+    - ❌ slider input
     - ❌ X-Y controller
     - ❌ other components composed and styled like FL Studio controls
   - ❓ possibly other sets of styled, ready-to-use components
-- Flexible deployment options
-  - ✔ Common JS
-  - ✔ UMD
-  - ❌ ES modules *(see `src/` folder for now for uncompiled ES modules)*
-  - ✔ `window` global
-  - ❌ React bindings (likely a separate package when implemented)
-  - ✔ CSS
-  - ❌ Sass *(srr `src/` folder for now for uncompiled SCSS)*
-- ⚠ Detailed documentation and usage demos (partial progress)
+- Performance
+  - ❓ alter or replace rendering method to avoid the performance limitations of SVG
+- Features
+  - ❓ maybe add built-in logarithmic scaling to inputs
+  - ❓ maybe add built-in input labels
+  - ❓ direct support for React or other frameworks
 
 ## Package Contents
+For now, the components are distributed as a single UMD module with all relevant classes accessible via the default export object.
 
 ```
 precision-inputs
-├── common
-│   ├── precision-inputs.base.js
-│   └── precision-inputs.fl-controls.js
-├── css
-│   ├── precision-inputs.base.css
-│   └── precision-inputs.fl-controls.css
-├── scripts
-│   ├── precision-inputs.base.js
-│   └── precision-inputs.fl-controls.js
-└── umd
-    ├── precision-inputs.base.js
-    └── precision-inputs.fl-controls.js
+└── dist
+    ├── precision-inputs.css
+    ├── precision-inputs.css.map
+    ├── precision-inputs.js
+    └── precision-inputs.js.map
 ```

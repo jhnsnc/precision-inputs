@@ -1,10 +1,12 @@
-@import '../utils/easing';
+@use 'sass:math';
+@use './demo.scss';
 
 // FL studio knobs - demo styles
 
 $envelope-knob-size: 80px;
 $tension-knob-size: 60px;
 .fl-envelope {
+  @include demo.demoPanel;
   width: 600px;
   padding: 20px;
 }
@@ -12,7 +14,7 @@ $tension-knob-size: 60px;
   height: 200px;
   background: #21272b;
   border: 2px solid #191f23;
-  .envelope-visualizer {
+  .fl-envelope__visualizer-svg {
     width: 100%;
     height: 100%;
     overflow: visible;
@@ -48,14 +50,14 @@ $tension-knob-size: 60px;
 
 // FL Standard Knobs - sizing for wrapper class demo
 
-.fl-demo-knob {
+.fl-demo__knob {
   flex: 0 0 auto;
-  &.envelope-knob {
+  &.fl-demo__envelope-knob {
     width: $envelope-knob-size;
     height: $envelope-knob-size;
   }
-  &.tension-knob {
-    padding: ($envelope-knob-size - $tension-knob-size)/2;
+  &.fl-demo__tension-knob {
+    padding: math.div($envelope-knob-size - $tension-knob-size, 2);
     width: $envelope-knob-size;
     height: $envelope-knob-size;
   }

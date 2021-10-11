@@ -15,8 +15,17 @@ export function hexstringToNum(hex) {
          parseInt(hex.substring(4,6), 16); // b
 }
 
-export function numToHexstring(val) {
+export function colorNumToHexstring(val) {
   return '#' + (val & 0xffffff).toString(16);
+}
+
+export function colorNumToComponents(input) {
+  const val = ~~input;
+  return {
+    r: val >> 16,
+    g: val >> 8 & 0xff,
+    b: val & 0xff
+  };
 }
 
 // assumes colorA and colorB are ints representing a color value

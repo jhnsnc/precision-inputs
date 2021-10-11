@@ -21,7 +21,7 @@ body {
   background: radial-gradient(#1a1d22, #121318);
 }
 
-.demo-panel {
+@mixin demoPanel {
   flex: 0 0 auto;
   margin: 10px;
   overflow: hidden;

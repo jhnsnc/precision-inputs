@@ -1,25 +1,9 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-
-const dirSource = path.join(__dirname, 'src');
-
-// dev/prod flag
-const IS_DEV = (process.env.NODE_ENV === 'dev');
-
-// Plugin config
-const htmlDocumentPlugin = new HtmlWebpackPlugin({
-  template: './src/demo/demo.html',
-  filename: 'index.html',
-  inject: 'body',
-});
-
-const extractSass = new ExtractTextPlugin({
-  filename: 'precision-inputs.[name].css',
-  disable: IS_DEV,
-});
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
+  mode: 'development',
   entry: {
     demo: './src/demo/demo.js',
   },
@@ -27,37 +11,66 @@ module.exports = {
     path: path.join(__dirname, 'public'),
     filename: '[name].bundle.js',
   },
+  devtool: 'eval-source-map',
+  devServer: {
+    static: path.join(__dirname, 'public'),
+    liveReload: true,
+    port: 8080,
+    open: true,
+  },
   module: {
-    loaders: [
+    rules: [
       // JS
       {
-        test: /\.js$/,
-        loader: 'babel-loader',
+        test: /\.m?js$/i,
         exclude: /node_modules/,
-        options: {
-          comments: true,
-          compact: true,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              ['@babel/preset-env', { targets: 'defaults' }]
+            ],
+            comments: true,
+            compact: true,
+          },
         },
       },
       // SCSS
       {
-        test: /\.(scss|sass)$/,
-        use: extractSass.extract({
-          use: [{
-            loader: 'css-loader'
-          }, {
+        test: /\.(scss|sass)$/i,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+              modules: {
+                localIdentName: "[local]",
+                namedExport: true,
+              },
+            }
+          },
+          {
             loader: 'postcss-loader'
-          }, {
+          },
+          {
             loader: 'sass-loader'
-          }],
-          // use style-loader in development
-          fallback: 'style-loader'
-        })
+          }
+        ],
       },
     ]
   },
   plugins: [
-    htmlDocumentPlugin,
-    extractSass,
+    new HtmlWebpackPlugin({
+      title: 'Precision Inputs Test Page',
+      template: './src/demo/demo.html',
+      filename: 'index.html',
+      inject: true,
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'precision-inputs.[name].css',
+    }),
   ]
 };

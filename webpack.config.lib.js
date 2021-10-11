@@ -1,77 +1,68 @@
 const path = require('path');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-// Plugin config
-const extractSass = new ExtractTextPlugin({
-  filename: '../css/precision-inputs.[name].css',
-});
-
-module.exports = function(env) {
-
-  const outputTarget = {
-    // path set below
-    filename: 'precision-inputs.[name].js',
+module.exports = {
+  mode: 'production',
+  entry: {
+    // 'base': './src/base/index.js',
+    // 'fl-controls': './src/fl-controls/index.js',
+    'precision-inputs': './src/index.js',
+  },
+  output: {
+    filename: '[name].js',
     library: 'PrecisionInputs',
     libraryExport: 'default',
-    // libraryTarget set below
-  };
-
-  if (env.target === 'window') {
-    outputTarget.path = path.join(__dirname, 'scripts');
-    outputTarget.libraryTarget = 'window';
-  } else if (env.target === 'umd') {
-    outputTarget.path = path.join(__dirname, 'umd');
-    outputTarget.libraryTarget = 'umd';
-  } else if (env.target === 'common') {
-    outputTarget.path = path.join(__dirname, 'common');
-    outputTarget.libraryTarget = 'commonjs2';
-  } else {
-    return false;
-  }
-
-  return {
-    entry: {
-      'base': './src/base/index.js',
-      'fl-controls': './src/fl-controls/index.js',
-    },
-    output: outputTarget,
-    module: {
-      loaders: [
-        // JS
-        {
-          test: /\.js$/,
+    path: path.join(__dirname, 'dist'),
+    libraryTarget: 'umd',
+  },
+  devtool: 'source-map',
+  module: {
+    rules: [
+      // JS
+      {
+        test: /\.m?js$/i,
+        exclude: /node_modules/,
+        use: {
           loader: 'babel-loader',
-          exclude: /node_modules/,
           options: {
+            presets: [
+              ['@babel/preset-env', { targets: 'defaults' }]
+            ],
             comments: true,
             compact: true,
           },
         },
-        // SCSS
-        {
-          test: /\.(scss|sass)$/,
-          use: extractSass.extract({
-            use: [{
-              loader: 'css-loader',
-              options: {
-                minimize: true,
-              }
-            }, {
-              loader: 'postcss-loader'
-            }, {
-              loader: 'sass-loader'
-            }],
-            // use style-loader in development
-            fallback: 'style-loader'
-          })
-        },
-      ]
-    },
-    plugins: [
-      new UglifyJSPlugin(),
-      extractSass,
+      },
+      // SCSS
+      {
+        test: /\.(scss|sass)$/i,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+              modules: {
+                localIdentName: "[local]__[hash:base64:6]",
+                namedExport: true,
+              },
+            },
+          },
+          {
+            loader: 'postcss-loader'
+          },
+          {
+            loader: 'sass-loader'
+          }
+        ],
+      },
     ]
-  };
-
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+    }),
+  ]
 };

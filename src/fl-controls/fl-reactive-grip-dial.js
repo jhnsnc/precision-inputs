@@ -1,22 +1,17 @@
-import './fl-reactive-grip-dial.scss';
-
 import {
-  svgNS,
+  crsvg,
   defineSvgGradient,
   defineBlurFilter,
   defineDarkenFilter,
   defineMask,
   defineDropshadowFilter,
-  createGroup,
-  createRectangle,
-  createCircle,
-  createLine,
-  createPath,
 } from '../utils/svg';
 
 import colors from './fl-colors';
 
 import KnobInput from '../base/knob-input';
+
+import * as styles from './fl-reactive-grip-dial.scss';
 
 let instanceCount = 0;
 
@@ -41,30 +36,27 @@ export default class FLReactiveGripDial extends KnobInput {
       throw new Error('FLReactiveGripDial constructor must receive a valid container element');
     }
 
+    super(containerElement,
+      {
+        ...options,
+        focusActiveClass: styles.focusActive,
+        dragActiveClass: styles.dragActive,
+      });
+
     // options
     const color = typeof options.color !== 'undefined' ? options.color : colors.default.str;
     const guideTicks = typeof options.guideTicks === 'number' ? options.guideTicks : 9;
-    const gripBumps = typeof options.gripBumps === 'number' ? options.gripBumps : 5;
-    const gripExtrusion = typeof options.gripExtrusion === 'number' ? options.gripExtrusion : 0.5;
-    const minRotation = typeof options.minRotation === 'number' ? options.minRotation : (0.5/guideTicks) * 360;
-    const maxRotation = typeof options.maxRotation === 'number' ? options.maxRotation : (1-(0.5/guideTicks)) * 360;
+    this.gripBumps = typeof options.gripBumps === 'number' ? options.gripBumps : 5;
+    this.gripExtrusion = typeof options.gripExtrusion === 'number' ? options.gripExtrusion : 0.5;
+    this.minRotation = typeof options.minRotation === 'number' ? options.minRotation : (0.5/guideTicks) * 360;
+    this.maxRotation = typeof options.maxRotation === 'number' ? options.maxRotation : (1-(0.5/guideTicks)) * 360;
 
     // construct visual element and attach to DOM
-    const visualElement = FLReactiveGripDial._constructVisualElement(color, guideTicks, minRotation, maxRotation);
-
-    // create visual update functions
-    options.visualContext = FLReactiveGripDial._getVisualSetupFunction(minRotation, maxRotation);
-    options.updateVisuals = FLReactiveGripDial._getVisualUpdateFunction();
-
-    containerElement.classList.add('fl-reactive-grip-dial');
+    const visualElement = this.createVisuals(color, guideTicks);
+    containerElement.classList.add(styles.flReactiveGripDial);
     containerElement.appendChild(visualElement);
 
-    // call constructor
-    super(containerElement, visualElement, options);
-
     // morph grip dial shape on hover
-    this.gripBumps = gripBumps;
-    this.gripExtrusion = gripExtrusion;
     this.mouseX = 0;
     this.mouseY = 0;
     this.hoverTween = {
@@ -74,16 +66,19 @@ export default class FLReactiveGripDial extends KnobInput {
       startTime: 0,
       duration: 600,
     };
-    // handlers
-    this._reactiveDialHandlers = {
-      hover: this.handleHover.bind(this),
-      move: this.handleMove.bind(this),
-      unhover: this.handleUnhover.bind(this),
-      dragStart: this.handleDragStart.bind(this),
-      dragEnd: this.handleDragEnd.bind(this),
-    };
-    this.addEventListener('mouseover', this._reactiveDialHandlers.hover);
-    this.addEventListener('knobdragstart', this._reactiveDialHandlers.dragStart);
+
+    // finalize
+    this.setupVisuals(this.update.bind(this), visualElement);
+
+    // event handlers
+    this.handleHover = this.handleHover.bind(this);
+    this.handleMove = this.handleMove.bind(this);
+    this.handleUnhover = this.handleUnhover.bind(this);
+    this.handleDragStart = this.handleDragStart.bind(this);
+    this.handleDragEnd = this.handleDragEnd.bind(this);
+
+    this.addEventListener('mouseover', this.handleHover);
+    this.addEventListener('knobdragstart', this.handleDragStart);
   }
 
   handleHover(evt) {
@@ -106,23 +101,23 @@ export default class FLReactiveGripDial extends KnobInput {
     }
   }
 
-  handleUnhover(evt) {
+  handleUnhover() {
     this.stopHoverEffect();
   }
 
-  handleDragStart(evt) {
+  handleDragStart() {
     this.startHoverEffect();
   }
 
-  handleDragEnd(evt) {
+  handleDragEnd() {
     this.stopHoverEffect();
   }
 
   startHoverEffect() {
     // add event listeners
-    document.body.addEventListener('mousemove', this._reactiveDialHandlers.move);
-    this.addEventListener('mouseout', this._reactiveDialHandlers.unhover);
-    this.addEventListener('knobdragend', this._reactiveDialHandlers.dragEnd);
+    document.body.addEventListener('mousemove', this.handleMove);
+    this.addEventListener('mouseout', this.handleUnhover);
+    this.addEventListener('knobdragend', this.handleDragEnd);
     // start tween
     if (this.hoverTween.rafId) { // cancel if existing
       window.cancelAnimationFrame(this.hoverTween.rafId);
@@ -144,9 +139,9 @@ export default class FLReactiveGripDial extends KnobInput {
     }
 
     // remove event listeners
-    document.body.removeEventListener('mousemove', this._reactiveDialHandlers.move);
-    this.removeEventListener('mouseout', this._reactiveDialHandlers.unhover);
-    this.removeEventListener('knobdragend', this._reactiveDialHandlers.dragEnd);
+    document.body.removeEventListener('mousemove', this.handleMove);
+    this.removeEventListener('mouseout', this.handleUnhover);
+    this.removeEventListener('knobdragend', this.handleDragEnd);
 
     // end tween
     if (this.hoverTween.rafId) { // cancel if existing
@@ -198,15 +193,14 @@ export default class FLReactiveGripDial extends KnobInput {
   }
 
   morphGripShape(progress) {
-    const evenSpacing = (Math.PI/this.gripBumps);
-    const arcSpan = (2-progress) * evenSpacing;
+    const evenSpacing = Math.PI / this.gripBumps;
+    const arcSpan = (2 - progress) * evenSpacing;
     const bumpSpan = progress * evenSpacing;
     const bumpRadius = 13 / (18 * this.gripExtrusion + 1) * this.gripBumps;
 
     // write path data
-    var gripPathData = `M${x(13,-arcSpan/2)},${y(13,-arcSpan/2)}`;
-    var numBumps = 5
-    for(var i=0; i<this.gripBumps; i++) {
+    let gripPathData = `M${x(13,-arcSpan/2)},${y(13,-arcSpan/2)}`;
+    for(let i = 0; i < this.gripBumps; i += 1) {
       const arcAfter = (i*2)*evenSpacing + (arcSpan/2);
       const bumpAfter = (i*2+1)*evenSpacing + (bumpSpan/2);
       gripPathData += `A-13,13,0,0,1,${x(13,arcAfter)},${y(13,arcAfter)}`;
@@ -215,86 +209,104 @@ export default class FLReactiveGripDial extends KnobInput {
     gripPathData += 'Z';
 
     // update shapes
-    this._visualContext.gripMask.setAttribute('d', gripPathData);
-    this._visualContext.gripOutline.setAttribute('d', gripPathData);
+    this.gripMaskPath.setAttribute('d', gripPathData);
+    this.gripOutline.setAttribute('d', gripPathData);
   }
 
-  static _constructVisualElement(color, guideTicks, minRotation, maxRotation) {
-    const svg = document.createElementNS(svgNS, 'svg');
-    svg.classList.add('fl-reactive-grip-dial__svg');
-    svg.setAttribute('viewBox', '0 0 40 40');
+  createVisuals(color, guideTicks) {
+    const svg = crsvg('svg', { class: styles.flReactiveGripDialSvg, viewBox: '0 0 40 40' });
 
     // container for defs specific to this dial instance
-    const defs = document.createElementNS(svgNS, 'defs');
+    const defs = crsvg('defs');
     const initialGripPath = 'M20,33A13,13,0,0,1,20,7A-13,13,0,0,1,20,33Z';
-    const gripMask = document.createElementNS(svgNS, 'mask');
-    gripMask.id = `mask__fl-reactive-grip__grip-outline--${instanceCount++}`;
-    const gripMaskPath = createPath(initialGripPath, {
-      classes: 'fl-reactive-grip-dial__grip-mask-path',
-      fill: '#ffffff',
-    });
-    gripMask.appendChild(gripMaskPath);
+    const gripMask = crsvg('mask',
+      { id: `mask__fl-reactive-grip__grip-outline--${instanceCount++}` },
+      [
+        this.gripMaskPath = crsvg('path',
+        {
+          d: initialGripPath,
+          class: styles.flReactiveGripDialGripMaskPath,
+          fill: '#ffffff',
+        })
+      ]
+    );
     defs.appendChild(gripMask);
 
     // guides
-    const minTheta = minRotation * Math.PI / 180;
-    const maxTheta = maxRotation * Math.PI / 180;
+    const minTheta = this.minRotation * Math.PI / 180;
+    const maxTheta = this.maxRotation * Math.PI / 180;
     const thetaDelta = maxTheta - minTheta;
-    const guides = createGroup({ classes: 'fl-reactive-grip-dial__guides' });
-    const focusIndicator = createPath(`M${x(16,minTheta)},${y(16,minTheta)}A16,16,0,0,1,20,4A-16,16,0,0,1,${x(16,maxTheta)},${y(16,maxTheta)}`, {
-      classes: 'fl-reactive-grip-dial__focus-indicator',
-      stroke: color,
-      strokeWidth: 3,
-      strokeLinecap: 'round',
-      filter: defineBlurFilter('filter__fl-reactive-grip-dial__blur-focus-indicator', 1.5, 'none', 0.2),
-    });
-    const guideRing = createPath(`M${x(16,minTheta)},${y(16,minTheta)}A16,16,0,0,1,20,4A-16,16,0,0,1,${x(16,maxTheta)},${y(16,maxTheta)}`, {
-      classes: 'fl-reactive-grip-dial__guide-ring',
-      stroke: '#32383c',
-      strokeWidth: 3,
-      strokeLinecap: 'round',
-    });
-    const guideTickMarks = [];
-    for (let i=0; i<guideTicks; i++) {
-      let theta = minTheta + i*thetaDelta/(guideTicks-1);
-      guideTickMarks.push( createLine(x(19.5,theta), y(19.5,theta), x(14.5,theta), y(14.5,theta),{
-        classes: 'fl-reactive-grip-dial__guide-tick',
-        stroke: '#23292d',
-      }) );
+    const guides = crsvg('g',
+      [
+        crsvg('path',
+          {
+            d: `M${x(16,minTheta)},${y(16,minTheta)}A16,16,0,0,1,20,4A-16,16,0,0,1,${x(16,maxTheta)},${y(16,maxTheta)}`,
+            class: styles.flReactiveGripDialFocusIndicator,
+            fill: 'transparent',
+            stroke: color,
+            'stroke-width': 3,
+            'stroke-linecap': 'round',
+            filter: defineBlurFilter(`filter__${styles.flReactiveGripDialFocusIndicator}`, 1.5, 'none', 0.2),
+          }
+        ),
+        crsvg('path',
+          {
+            d: `M${x(16,minTheta)},${y(16,minTheta)}A16,16,0,0,1,20,4A-16,16,0,0,1,${x(16,maxTheta)},${y(16,maxTheta)}`,
+            class: styles.flReactiveGripDialGuideRing,
+            fill: 'transparent',
+            stroke: '#32383c',
+            'stroke-width': 3,
+            'stroke-linecap': 'round',
+          }
+        ),
+      ]
+    );
+    for (let i = 0; i < guideTicks; i += 1) {
+      let theta = minTheta + i * thetaDelta / (guideTicks - 1);
+      guides.appendChild(
+        crsvg('line', { x1: x(19.5,theta), y1: y(19.5,theta), x2: x(14.5,theta), y2: y(14.5,theta), stroke: '#23292d' })
+      );
     }
-    guides.appendChild(focusIndicator);
-    guides.appendChild(guideRing);
-    guideTickMarks.forEach(el => guides.appendChild(el));
 
     // dial grip
-    const grip = createGroup({
-      classes: 'fl-reactive-grip-dial__grip',
-      filter: defineDropshadowFilter('filter__fl-reactive-grip-dial__drop-shadow', 0x23292d, 0.3, 0, 2, 0.3),
-    });
-    const gripFill = createRectangle(6, 6, 28, 28, {
-      classes: 'fl-reactive-grip-dial__grip-fill',
-      fill: defineSvgGradient('grad__fl-reactive-grip-dial__grip-fill', 'radial', {cx: 0.5, cy: -0.2, r: 1.2, fx: 0.5, fy: -0.2}, {
-        '0%': '#8b9499',
-        '70%': '#10191e',
-        '100%': '#2b3439',
-      }),
-      mask: `url(#${gripMask.id})`,
-    });
-    const gripOutline = createPath(initialGripPath, {
-      classes: 'fl-reactive-grip-dial__grip-outline',
-      stroke: '#23292d',
-      strokeWidth: 0.5,
-    });
-    const indicatorDot = createCircle(x(10.5,0), y(10.5,0), 1, {
-      classes: 'fl-reactive-grip-dial__indicator-dot',
-      fill: color,
-    });
-    grip.appendChild(gripFill);
-    grip.appendChild(gripOutline);
-    grip.appendChild(indicatorDot);
+    const grip = crsvg('g',
+      {
+        filter: defineDropshadowFilter('filter__fl-reactive-grip-dial__drop-shadow', 0x23292d, 0.3, 0, 2, 0.3),
+      },
+      [
+        crsvg('rect',
+          {
+            x: 6, y: 6,
+            width: 28, height: 28,
+            fill: defineSvgGradient('grad__fl-reactive-grip-dial__grip-fill', 'radial', {cx: 0.5, cy: -0.2, r: 1.2, fx: 0.5, fy: -0.2}, {
+              '0%': '#8b9499',
+              '70%': '#10191e',
+              '100%': '#2b3439',
+            }),
+            mask: `url(#${gripMask.id})`,
+          }
+        ),
+        this.gripOutline = crsvg('path',
+          {
+            d: initialGripPath,
+            class: styles.flReactiveGripDialGripOutline,
+            fill: 'transparent',
+            stroke: '#23292d',
+            'stroke-width': 0.5,
+          }
+        ),
+        this.indicatorDot = crsvg('circle',
+          {
+            cx: x(10.5,0), cy: y(10.5,0), r: 1,
+            class: styles.flReactiveGripDialIndicatorDot,
+            fill: color,
+          }
+        ),
+      ]
+    );
 
     // dial top
-    const chrome = createGroup({ classes: 'fl-reactive-grip-dial__chrome' });
+    const chrome = crsvg('g', { class: styles.flReactiveGripDialChrome });
     const blurMain = defineBlurFilter('filter__fl-reactive-grip-dial__blur-base', 1.5);
     const blurHighlight = defineBlurFilter('filter__fl-reactive-grip-dial__blur-base', 0.5);
     const gradColorStops = {
@@ -308,90 +320,94 @@ export default class FLReactiveGripDial extends KnobInput {
     const darken = defineDarkenFilter('filter__fl-reactive-grip-dial__darken', 0.75, 0.05);
 
     // dial top - chrome base
-    const chromeBase = createGroup({
-      classes: 'fl-reactive-grip-dial__chrome-base',
-      mask: defineMask('mask__fl-reactive-grip__chrome-base', [ createCircle(20, 20, 8, { fill: '#ffffff' }) ]),
-      transform: 'rotate(-25 20 20)'
-    });
-    const chromeBaseMain = createGroup({ filter: blurMain });
-    chromeBaseMain.appendChild( createRectangle(12, 12, 16, 16, { fill: '#383d3f' }) );
-    chromeBaseMain.appendChild( createRectangle(12, 12, 8, 16, { fill: chromeGradientA }) );
-    chromeBaseMain.appendChild( createRectangle(20, 12, 8, 16, { fill: chromeGradientB }) );
-    chromeBaseMain.appendChild( createRectangle(12, 12, 16, 8, { fill: chromeGradientC }) );
-    chromeBaseMain.appendChild( createRectangle(12, 20, 16, 8, { fill: chromeGradientD }) );
-    chromeBaseMain.appendChild( createLine(12, 28, 19, 21, { stroke: '#ffffff', strokeOpacity: 0.8 }) );
-    chromeBaseMain.appendChild( createLine(21, 19, 28, 12, { stroke: '#ffffff', strokeOpacity: 0.8 }) );
-    chromeBase.appendChild(chromeBaseMain);
-    chromeBase.appendChild( createLine(12, 28, 19.5, 20.5, { stroke: '#ffffff', strokeOpacity: 0.5, strokeWidth: 0.75, filter: blurHighlight }) );
-    chromeBase.appendChild( createLine(20.5, 19.5, 28, 12, { stroke: '#ffffff', strokeOpacity: 0.5, strokeWidth: 0.75, filter: blurHighlight }) );
+    const chromeBase = crsvg('g',
+      {
+        mask: defineMask('mask__fl-reactive-grip__chrome-base', [ crsvg('circle', { cx: 20, cy: 20, r: 8, fill: '#ffffff' }) ]),
+        transform: 'rotate(-25 20 20)'
+      },
+      [
+        crsvg('g', { filter: blurMain },
+          [
+            crsvg('rect', { x: 12, y: 12, width: 16, height: 16, fill: '#383d3f' }),
+            crsvg('rect', { x: 12, y: 12, width: 8, height: 16, fill: chromeGradientA }),
+            crsvg('rect', { x: 20, y: 12, width: 8, height: 16, fill: chromeGradientB }),
+            crsvg('rect', { x: 12, y: 12, width: 16, height: 8, fill: chromeGradientC }),
+            crsvg('rect', { x: 12, y: 20, width: 16, height: 8, fill: chromeGradientD }),
+            crsvg('line', { x1: 12, y1: 28, x2: 19, y2: 21, stroke: '#ffffff', 'stroke-opacity': 0.8 }),
+            crsvg('line', { x1: 21, y1: 19, x2: 28, y2: 12, stroke: '#ffffff', 'stroke-opacity': 0.8 }),
+          ]
+        ),
+        crsvg('line', { x1: 12, y1: 28, x2: 19.5, y2: 20.5, stroke: '#ffffff', 'stroke-opacity': 0.5, 'stroke-width': 0.75, filter: blurHighlight }),
+        crsvg('line', { x1: 20.5, y1: 19.5, x2: 28, y2: 12, stroke: '#ffffff', 'stroke-opacity': 0.5, 'stroke-width': 0.75, filter: blurHighlight }),
+      ]
+    );
 
     // dial top - chrome ridges
     const chromeRidgesMaskItems = [];
-    for (let i=1; i<11; i++) {
-      chromeRidgesMaskItems.push( createCircle(20, 20, i*7.5/10, { stroke: '#ffffff', strokeWidth: 0.5*7.5/10 }) );
+    for (let i = 1; i < 11; i += 1) {
+      chromeRidgesMaskItems.push( crsvg('circle', { cx: 20, cy: 20, r: i*7.5/10, fill: 'transparent', stroke: '#ffffff', 'stroke-width': 0.5*7.5/10 }) );
     }
-    const chromeRidges = createGroup({
-      classes: 'fl-reactive-grip-dial__chrome-ridges',
-      mask: defineMask('mask__fl-reactive-grip__chrome-ridges', chromeRidgesMaskItems),
-      transform: 'rotate(-19 20 20)',
-      filter: darken
-    });
-    const chromeRidgesMain = createGroup({ filter: blurMain });
-    chromeRidgesMain.appendChild( createRectangle(12, 12, 16, 16, { fill: '#383d3f' }) );
-    chromeRidgesMain.appendChild( createRectangle(12, 12, 8, 16, { fill: chromeGradientA }) );
-    chromeRidgesMain.appendChild( createRectangle(20, 12, 8, 16, { fill: chromeGradientB }) );
-    chromeRidgesMain.appendChild( createRectangle(12, 12, 16, 8, { fill: chromeGradientC }) );
-    chromeRidgesMain.appendChild( createRectangle(12, 20, 16, 8, { fill: chromeGradientD }) );
-    chromeRidgesMain.appendChild( createLine(12, 28, 19, 21, { stroke: '#ffffff', strokeOpacity: 0.8 }) );
-    chromeRidgesMain.appendChild( createLine(21, 19, 28, 12, { stroke: '#ffffff', strokeOpacity: 0.8 }) );
-    chromeRidges.appendChild(chromeRidgesMain);
-    chromeRidges.appendChild( createLine(12, 28, 19.5, 20.5, { stroke: '#ffffff', strokeOpacity: 0.5, strokeWidth: 0.75, filter: blurHighlight }) );
-    chromeRidges.appendChild( createLine(20.5, 19.5, 28, 12, { stroke: '#ffffff', strokeOpacity: 0.5, strokeWidth: 0.75, filter: blurHighlight }) );
+    const chromeRidges = crsvg('g',
+      {
+        mask: defineMask('mask__fl-reactive-grip__chrome-ridges', chromeRidgesMaskItems),
+        transform: 'rotate(-19 20 20)',
+        filter: darken
+      },
+      [
+        crsvg('g', { filter: blurMain },
+          [
+            crsvg('rect', { x: 12, y: 12, width: 16, height: 16, fill: '#383d3f' }),
+            crsvg('rect', { x: 12, y: 12, width: 8, height: 16, fill: chromeGradientA }),
+            crsvg('rect', { x: 20, y: 12, width: 8, height: 16, fill: chromeGradientB }),
+            crsvg('rect', { x: 12, y: 12, width: 16, height: 8, fill: chromeGradientC }),
+            crsvg('rect', { x: 12, y: 20, width: 16, height: 8, fill: chromeGradientD }),
+            crsvg('line', { x1: 12, y1: 28, x2: 19, y2: 21, stroke: '#ffffff', 'stroke-opacity': 0.8 }),
+            crsvg('line', { x1: 21, y1: 19, x2: 28, y2: 12, stroke: '#ffffff', 'stroke-opacity': 0.8 }),
+          ]
+        ),
+        crsvg('line', { x1: 12, y1: 28, x2: 19.5, y2: 20.5, stroke: '#ffffff', 'stroke-opacity': 0.5, 'stroke-width': 0.75, filter: blurHighlight }),
+        crsvg('line', { x1: 20.5, y1: 19.5, x2: 28, y2: 12, stroke: '#ffffff', 'stroke-opacity': 0.5, 'stroke-width': 0.75, filter: blurHighlight }),
+      ]
+    );
 
     // dial top - combine
-    const chromeOutline = createCircle(20, 20, 8, {
-      classes: 'fl-reactive-grip-dial__chrome-outline',
+    const chromeOutline = crsvg('circle',
+    {
+      cx: 20, cy: 20, r: 8,
+      fill: 'transparent',
       stroke: '#23292d',
     });
-    const chromeHighlight = createCircle(20, 20, 7.5, {
-      classes: 'fl-reactive-grip-dial__chrome-highlight',
+    const chromeHighlight = crsvg('circle',
+    {
+      cx: 20, cy: 20, r: 7.5,
+      fill: 'transparent',
       stroke: '#70777d',
-      strokeOpacity: 0.6,
+      'stroke-opacity': 0.6,
     });
-    chrome.appendChild(chromeBase);
-    chrome.appendChild(chromeRidges);
-    chrome.appendChild(chromeOutline);
-    chrome.appendChild(chromeHighlight);
+
+    // combine dial
+    [
+      chromeBase,
+      chromeRidges,
+      chromeOutline,
+      chromeHighlight,
+    ].forEach(chrome.appendChild.bind(chrome));
 
     // combine all
-    svg.appendChild(defs);
-    svg.appendChild(guides);
-    svg.appendChild(grip);
-    svg.appendChild(chrome);
+    [
+      defs,
+      guides,
+      grip,
+      chrome,
+    ].forEach(svg.appendChild.bind(svg));
 
     return svg;
   }
 
-  static _getVisualSetupFunction(minRotation, maxRotation) {
-    return function() {
-      this.rotationDelta = maxRotation - minRotation;
-      this.minRotation = minRotation;
-
-      this.gripMask = this.element.querySelector('.fl-reactive-grip-dial__grip-mask-path');
-      this.gripMask.style[`${this.transformProperty}Origin`] = '20px 20px';
-      this.gripOutline = this.element.querySelector('.fl-reactive-grip-dial__grip-outline');
-      this.gripOutline.style[`${this.transformProperty}Origin`] = '20px 20px';
-      this.indicatorDot = this.element.querySelector('.fl-reactive-grip-dial__indicator-dot');
-      this.indicatorDot.style[`${this.transformProperty}Origin`] = '20px 20px';
-    };
-  }
-
-  static _getVisualUpdateFunction() {
-    return function(norm) {
-      const newRotation = this.minRotation + norm*this.rotationDelta;
-      this.gripMask.style[this.transformProperty] = `rotate(${newRotation}deg)`;
-      this.gripOutline.style[this.transformProperty] = `rotate(${newRotation}deg)`;
-      this.indicatorDot.style[this.transformProperty] = `rotate(${newRotation}deg)`;
-    };
+  update(norm) {
+    const newRotation = (1 - norm) * this.minRotation + norm * this.maxRotation;
+    this.gripMaskPath.style[this.transformProperty] = `rotate(${newRotation}deg)`;
+    this.gripOutline.style[this.transformProperty] = `rotate(${newRotation}deg)`;
+    this.indicatorDot.style[this.transformProperty] = `rotate(${newRotation}deg)`;
   }
 }
